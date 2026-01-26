@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
 import { api } from '../lib/api'
@@ -18,11 +18,17 @@ export default function CategoriesPage(){
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(false)
 
+  const idToName = useMemo(() => {
+    const m = new Map()
+    for (const c of items) m.set(c.id, c.name || '-')
+    return m
+  }, [items])
+
   const load = async () => {
     setError('')
     setLoading(true)
     try {
-      const { data } = await api.get('/admin/categories', { params: { q, limit: 200 } })
+      const { data } = await api.get('/admin/categories', { params: { q, limit: 500 } })
       setItems(data?.items || [])
       if (data?.categoriesSetupRequired) {
         setError(data?.hint || 'Kateqoriyalar cədvəli Supabase-də yaradılmayıb.')
@@ -36,8 +42,8 @@ export default function CategoriesPage(){
 
   useEffect(() => { load() }, [])
 
-  const openCreate = () => {
-    setEditing({ name: '', slug: '', sort: 0, is_active: true })
+  const openCreate = (parentId = null) => {
+    setEditing({ name: '', slug: '', sort: 0, is_active: true, parent_id: parentId })
     setOpen(true)
   }
 
@@ -48,6 +54,7 @@ export default function CategoriesPage(){
       slug: c.slug || '',
       sort: toInt(c.sort, 0),
       is_active: c.is_active !== false,
+      parent_id: c.parent_id || null,
       created_at: c.created_at,
     })
     setOpen(true)
@@ -71,6 +78,7 @@ export default function CategoriesPage(){
         slug: editing.slug,
         sort: toInt(editing.sort, 0),
         is_active: !!editing.is_active,
+        parent_id: editing.parent_id || null,
       }
       if (editing.id) {
         await api.patch(`/admin/categories/${editing.id}`, payload)
@@ -96,17 +104,53 @@ export default function CategoriesPage(){
     }
   }
 
+  // Build a slightly nicer ordering (parents first, then children)
+  const ordered = useMemo(() => {
+    const parents = []
+    const childrenByParent = new Map()
+    for (const c of items) {
+      if (!c.parent_id) parents.push(c)
+      else {
+        if (!childrenByParent.has(c.parent_id)) childrenByParent.set(c.parent_id, [])
+        childrenByParent.get(c.parent_id).push(c)
+      }
+    }
+    const sortFn = (a, b) => (toInt(a.sort, 0) - toInt(b.sort, 0)) || String(a.name||'').localeCompare(String(b.name||''))
+    parents.sort(sortFn)
+    for (const list of childrenByParent.values()) list.sort(sortFn)
+
+    const out = []
+    for (const p of parents) {
+      out.push(p)
+      const kids = childrenByParent.get(p.id) || []
+      for (const k of kids) out.push({ ...k, __isChild: true })
+    }
+    // Orphans (parent deleted) – keep them at the end
+    const orphans = items.filter(x => x.parent_id && !idToName.has(x.parent_id))
+    if (orphans.length) {
+      orphans.sort(sortFn)
+      for (const o of orphans) out.push({ ...o, __isChild: true })
+    }
+    return out
+  }, [items, idToName])
+
+  const parentOptions = useMemo(() => {
+    const opts = (items || []).map(c => ({ id: c.id, name: c.name }))
+    opts.sort((a,b) => String(a.name||'').localeCompare(String(b.name||'')))
+    return opts
+  }, [items])
+
   return (
-    <Layout title="Kateqoriyalar" subtitle="Mobil app üçün kateqoriyaları idarə edin (select).">
+    <Layout title="Kateqoriyalar" subtitle="Mobil app üçün kateqoriyaları və alt-kateqoriyaları idarə edin.">
       <div className="card">
-        <div className="row" style={{justifyContent:'space-between', alignItems:'center'}}>
-          <div className="row">
-            <input className="input" placeholder="Ad/slug axtar" value={q} onChange={(e)=>setQ(e.target.value)} style={{width:320}} />
+        <div className="row" style={{justifyContent:'space-between', alignItems:'center', flexWrap:'wrap'}}>
+          <div className="row" style={{flexWrap:'wrap'}}>
+            <input className="input" placeholder="Ad/slug axtar" value={q} onChange={(e)=>setQ(e.target.value)} style={{width:320, maxWidth:'100%'}} />
             <button className="btn" onClick={load} disabled={loading}>Axtar</button>
           </div>
-          <div className="row" style={{gap:10}}>
+          <div className="row" style={{gap:10, flexWrap:'wrap', justifyContent:'flex-end'}}>
             <div className="muted">Göstərilir: {items.length}</div>
-            <button className="btn" onClick={openCreate}>+ Yeni kateqoriya</button>
+            <button className="btn primary" onClick={()=>openCreate(null)}>+ Yeni kateqoriya</button>
           </div>
         </div>
 
@@ -117,31 +161,45 @@ export default function CategoriesPage(){
             <thead>
               <tr>
                 <th>Ad</th>
+                <th>Parent</th>
                 <th>Slug</th>
                 <th>Sort</th>
                 <th>Aktiv</th>
                 <th>Tarix</th>
-                <th style={{width:160}}>Əməliyyatlar</th>
+                <th style={{width:220}}>Əməliyyatlar</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((c) => (
+              {ordered.map((c) => (
                 <tr key={c.id}>
-                  <td style={{fontWeight:800}}>{c.name}</td>
+                  <td style={{fontWeight:800}}>
+                    <span style={{display:'inline-flex', alignItems:'center', gap:8}}>
+                      {c.__isChild ? <span className="pill" style={{padding:'2px 8px'}}>Alt</span> : null}
+                      <span style={{paddingLeft: c.__isChild ? 10 : 0}}>
+                        {c.__isChild ? '↳ ' : ''}{c.name}
+                      </span>
+                    </span>
+                  </td>
+                  <td className="muted">
+                    {c.parent_id ? (idToName.get(c.parent_id) || '—') : <span className="pill">—</span>}
+                  </td>
                   <td className="mono muted">{c.slug}</td>
                   <td className="muted">{toInt(c.sort, 0)}</td>
                   <td>{c.is_active ? <span className="pill good">Bəli</span> : <span className="pill">Xeyr</span>}</td>
                   <td className="muted">{c.created_at ? new Date(c.created_at).toLocaleString('az-AZ') : '-'}</td>
                   <td>
-                    <div className="row">
+                    <div className="row" style={{flexWrap:'wrap'}}>
+                      {!c.__isChild ? (
+                        <button className="btn ghost" onClick={()=>openCreate(c.id)}>+ Alt</button>
+                      ) : null}
                       <button className="btn ghost" onClick={()=>openEdit(c)}>Düzəliş</button>
                       <button className="btn danger" onClick={()=>del(c.id)}>Sil</button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {loading ? <tr><td colSpan="6" className="muted">Yüklənir…</td></tr> : null}
-              {!loading && items.length === 0 ? <tr><td colSpan="6" className="muted">Kateqoriya tapılmadı.</td></tr> : null}
+              {loading ? <tr><td colSpan="7" className="muted">Yüklənir…</td></tr> : null}
+              {!loading && items.length === 0 ? <tr><td colSpan="7" className="muted">Kateqoriya tapılmadı.</td></tr> : null}
             </tbody>
           </table>
         </div>
@@ -154,7 +212,7 @@ export default function CategoriesPage(){
         footer={
           <>
             <button className="btn ghost" onClick={close} disabled={saving}>Ləğv et</button>
-            <button className="btn" onClick={save} disabled={saving}>{saving ? 'Yadda saxlanır…' : 'Yadda saxla'}</button>
+            <button className="btn primary" onClick={save} disabled={saving}>{saving ? 'Yadda saxlanır…' : 'Yadda saxla'}</button>
           </>
         }
       >
@@ -171,6 +229,22 @@ export default function CategoriesPage(){
               </div>
             </>
           ) : null}
+
+          <div className="formRow">
+            <div className="label">Parent (istəyə bağlı)</div>
+            <select
+              className="select"
+              value={editing?.parent_id || ''}
+              onChange={(e)=>setEditing({...editing, parent_id: e.target.value || null})}
+            >
+              <option value="">— (Parent yoxdur)</option>
+              {parentOptions
+                .filter(p => p.id !== editing?.id) // can't be parent of itself
+                .map(p => <option key={p.id} value={p.id}>{p.name}</option>)
+              }
+            </select>
+            <div className="muted" style={{fontSize:12, marginTop:6}}>Alt-kateqoriya yaratmaq üçün parent seç.</div>
+          </div>
 
           <div className="formRow">
             <div className="label">Ad</div>

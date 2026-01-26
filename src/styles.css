@@ -1,38 +1,50 @@
 :root{
-  --bg0:#070A12;
-  --bg1:#0B1220;
-  --card: rgba(17, 26, 46, .64);
-  --card2: rgba(17, 26, 46, .85);
-  --stroke: rgba(255,255,255,.10);
-  --stroke2: rgba(255,255,255,.14);
-  --text:#EAF1FF;
-  --muted: rgba(234,241,255,.62);
-  --muted2: rgba(234,241,255,.45);
-  --shadow: 0 22px 60px rgba(0,0,0,.45);
-  --shadow2: 0 10px 26px rgba(0,0,0,.35);
+  /* Light theme */
+  --bg0:#F6F8FC;
+  --bg1:#EEF2F8;
+  --card: rgba(255,255,255,.86);
+  --card2: rgba(255,255,255,.96);
+  --stroke: rgba(15,23,42,.10);
+  --stroke2: rgba(15,23,42,.16);
+  --text:#0F172A;
+  --muted: rgba(15,23,42,.68);
+  --muted2: rgba(15,23,42,.48);
+  --shadow: 0 22px 60px rgba(15,23,42,.12);
+  --shadow2: 0 10px 26px rgba(15,23,42,.10);
   --r12: 12px;
   --r16: 16px;
   --r20: 20px;
   --r28: 28px;
-  --a1: #6EE7FF;
-  --a2: #34D399;
-  --bad: #FB7185;
-  --warn: #FBBF24;
-  --good: #34D399;
+  --a1: #2563EB; /* primary */
+  --a2: #10B981; /* success */
+  --bad: #E11D48;
+  --warn: #D97706;
+  --good: #10B981;
   --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
+
 *{ box-sizing: border-box; }
-html, body{ height:100%; }
+html, body{
+  margin:0;
+  font-family: var(--font);
+  color: var(--text);
+  background:
+    radial-gradient(1200px 720px at 8% 10%, rgba(37,99,235,.10), transparent 60%),
+    radial-gradient(900px 620px at 92% 8%, rgba(16,185,129,.10), transparent 55%),
+    radial-gradient(900px 680px at 25% 95%, rgba(217,119,6,.08), transparent 55%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+  background-attachment: fixed;
+}
 
 body{
   margin:0;
   font-family: var(--font);
   color: var(--text);
   background:
-    radial-gradient(1200px 720px at 8% 10%, rgba(110,231,255,.14), transparent 60%),
-    radial-gradient(900px 620px at 92% 8%, rgba(52,211,153,.12), transparent 55%),
-    radial-gradient(900px 680px at 25% 95%, rgba(251,191,36,.08), transparent 55%),
+    radial-gradient(1200px 720px at 8% 10%, rgba(37,99,235,.10), transparent 60%),
+    radial-gradient(900px 620px at 92% 8%, rgba(16,185,129,.10), transparent 55%),
+    radial-gradient(900px 680px at 25% 95%, rgba(217,119,6,.08), transparent 55%),
     linear-gradient(180deg, var(--bg0), var(--bg1));
   background-attachment: fixed;
 }
@@ -52,7 +64,7 @@ a{ color:inherit; text-decoration:none; }
   top:0;
   height: 100vh;
   border-right: 1px solid var(--stroke);
-  background: linear-gradient(180deg, rgba(10,14,26,.82), rgba(7,10,18,.75));
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.74));
   backdrop-filter: blur(10px);
 }
 
@@ -169,7 +181,7 @@ a{ color:inherit; text-decoration:none; }
   padding: 10px 12px;
   border-radius: 999px;
   border: 1px solid var(--stroke);
-  background: rgba(0,0,0,.14);
+  background: rgba(255,255,255,.72);
   color: var(--muted);
 }
 .search input{
@@ -267,19 +279,19 @@ a{ color:inherit; text-decoration:none; }
   border-radius: var(--r20);
   overflow:hidden;
   border: 1px solid var(--stroke);
-  background: rgba(0,0,0,.2);
+  background: rgba(255,255,255,.70);
 }
 .leafletMap{ height: 640px; width: 100%; }
 
 /* Recharts: make axes and tooltips readable on dark background */
-.recharts-text, .recharts-cartesian-axis-tick-value{ fill: rgba(255,255,255,.72) !important; }
-.recharts-cartesian-axis-line, .recharts-cartesian-axis-tick-line{ stroke: rgba(255,255,255,.18) !important; }
-.recharts-default-tooltip{ background: rgba(12,16,22,.92) !important; border: 1px solid rgba(255,255,255,.18) !important; border-radius: 14px !important; }
+.recharts-text, .recharts-cartesian-axis-tick-value{ fill: rgba(15,23,42,.68) !important; }
+.recharts-cartesian-axis-line, .recharts-cartesian-axis-tick-line{ stroke: rgba(15,23,42,.18) !important; }
+.recharts-default-tooltip{ background: rgba(255,255,255,.96) !important; border: 1px solid rgba(15,23,42,.14) !important; border-radius: 14px !important; }
 
 /* Ensure recharts fills parent size (fixes occasional "blank chart" issue when container size is not computed) */
 .recharts-responsive-container{ width: 100% !important; height: 100% !important; }
 .recharts-wrapper{ width: 100% !important; height: 100% !important; }
-.recharts-tooltip-label{ color: rgba(255,255,255,.85) !important; }
+.recharts-tooltip-label{ color: rgba(15,23,42,.85) !important; }
 .check{
   display:flex;
   align-items:center;
@@ -365,7 +377,7 @@ a{ color:inherit; text-decoration:none; }
 
 .input, .select, textarea.input{
   border: 1px solid var(--stroke);
-  background: rgba(0,0,0,.16);
+  background: rgba(255,255,255,.82);
   color: var(--text);
   padding: 10px 12px;
   border-radius: 14px;
@@ -390,9 +402,9 @@ a{ color:inherit; text-decoration:none; }
   font-size: 12px;
   color: var(--muted);
 }
-.pill.good{ border-color: rgba(52,211,153,.28); background: rgba(52,211,153,.12); color: rgba(234,241,255,.9); }
-.pill.bad{ border-color: rgba(251,113,133,.32); background: rgba(251,113,133,.12); color: rgba(234,241,255,.92); }
-.pill.warn{ border-color: rgba(251,191,36,.32); background: rgba(251,191,36,.12); color: rgba(234,241,255,.92); }
+.pill.good{ border-color: rgba(52,211,153,.28); background: rgba(52,211,153,.12); color: rgba(15,23,42,.92); }
+.pill.bad{ border-color: rgba(251,113,133,.32); background: rgba(251,113,133,.12); color: rgba(15,23,42,.92); }
+.pill.warn{ border-color: rgba(251,191,36,.32); background: rgba(251,191,36,.12); color: rgba(15,23,42,.92); }
 
 /* ---------- Table ---------- */
 .tableWrap{
@@ -400,14 +412,14 @@ a{ color:inherit; text-decoration:none; }
   overflow: auto;
   border-radius: var(--r28);
   border: 1px solid var(--stroke);
-  background: rgba(0,0,0,.10);
+  background: rgba(255,255,255,.72);
 }
 
 .table{ width: 100%; border-collapse: collapse; min-width: 860px; }
 .table thead th{
   position: sticky;
   top: 0;
-  background: rgba(0,0,0,.22);
+  background: rgba(255,255,255,.88);
   backdrop-filter: blur(8px);
   color: var(--muted);
   text-align:left;
@@ -421,7 +433,7 @@ a{ color:inherit; text-decoration:none; }
   border-bottom: 1px solid rgba(255,255,255,.06);
   font-size: 13px;
 }
-.table tr:hover td{ background: rgba(110,231,255,.06); }
+.table tr:hover td{ background: rgba(37,99,235,.06); }
 
 /* ---------- Modal ---------- */
 .modalOverlay{
@@ -450,13 +462,13 @@ a{ color:inherit; text-decoration:none; }
   align-items:flex-start;
   gap: 12px;
   padding: 16px 16px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid var(--stroke);
 }
 
 .modalTitle{ font-weight: 950; letter-spacing:.2px; }
 .modalSub{ font-size: 12px; color: var(--muted); margin-top: 4px; }
 .modalBody{ padding: 16px; }
-.modalFooter{ padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08); display:flex; justify-content:flex-end; gap: 10px; }
+.modalFooter{ padding: 14px 16px; border-top: 1px solid var(--stroke); display:flex; justify-content:flex-end; gap: 10px; }
 
 .formGrid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .formRow{ display:flex; flex-direction:column; gap: 6px; }
@@ -510,7 +522,7 @@ a{ color:inherit; text-decoration:none; }
 
 /* ---------- Drawer (mobile) ---------- */
 .drawerOverlay{ position: fixed; inset: 0; background: rgba(0,0,0,.60); z-index: 60; }
-.drawer{ width: min(360px, 92vw); height: 100%; background: rgba(7,10,18,.92); border-right: 1px solid var(--stroke); box-shadow: var(--shadow); }
+.drawer{ width: min(360px, 92vw); height: 100%; background: rgba(255,255,255,.92); border-right: 1px solid var(--stroke); box-shadow: var(--shadow); }
 .drawerTop{ display:flex; align-items:center; justify-content:space-between; padding: 16px 16px 0 16px; }
 .drawerTitle{ font-weight: 950; }
 .sidebarMobile{ position: static; height: auto; width: 100%; border-right: none; background: transparent; }
