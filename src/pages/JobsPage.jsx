@@ -77,6 +77,7 @@ export default function JobsPage(){
   const createJob = async () => {
     if (!createForm.title.trim()) return alert('Başlıq boş ola bilməz')
     if (!createForm.created_by) return alert('Elanı hansı işçi axtaran (employer) adına yaratmaq lazımdır?')
+    if (!createForm.location_lat || !createForm.location_lng) return alert('Lokasiya seçilməlidir (xəritədən seçin)')
     setSaving(true)
     try {
       const payload = {
