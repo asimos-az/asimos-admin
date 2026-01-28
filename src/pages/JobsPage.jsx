@@ -377,7 +377,12 @@ export default function JobsPage(){
             <AdminMapPicker
               lat={createForm.location_lat ? Number(createForm.location_lat) : null}
               lng={createForm.location_lng ? Number(createForm.location_lng) : null}
-              onChange={({lat, lng}) => setCreateForm((p)=>({ ...p, location_lat: String(lat), location_lng: String(lng) }))}
+              onChange={({lat, lng, address}) => setCreateForm((p)=>({
+                ...p,
+                location_lat: String(lat),
+                location_lng: String(lng),
+                location_address: (p.location_address || '').trim() ? p.location_address : (address || ''),
+              }))}
             />
           </div>
 
