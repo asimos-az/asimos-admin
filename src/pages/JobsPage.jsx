@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
+import AdminMapPicker from '../components/AdminMapPicker.jsx'
 import { api } from '../lib/api'
 
 export default function JobsPage(){
@@ -26,6 +27,15 @@ export default function JobsPage(){
   const [employers, setEmployers] = useState([])
   const [categories, setCategories] = useState([])
   const [saving, setSaving] = useState(false)
+
+  const [creatingEmployer, setCreatingEmployer] = useState(false)
+  const [employerForm, setEmployerForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    password: '',
+    companyName: '',
+  })
 
   const load = async () => {
     setError('')
@@ -103,6 +113,38 @@ export default function JobsPage(){
       setEmployers(users.filter((x) => String(x.role || '').toLowerCase() === 'employer'))
       setCategories((cRes?.data?.items || []).map((x) => x.name))
     } catch {}
+  }
+
+  const openCreateEmployer = () => {
+    setEmployerForm({ full_name:'', email:'', phone:'', password:'', companyName:'' })
+    setCreatingEmployer(true)
+  }
+
+  const createEmployer = async () => {
+    try {
+      if (!employerForm.full_name || !employerForm.email || !employerForm.password) {
+        alert('Ad, Email və Şifrə mütləqdir')
+        return
+      }
+      // Use the same register endpoint as mobile (role=employer)
+      const payload = {
+        role: 'employer',
+        full_name: employerForm.full_name,
+        email: employerForm.email,
+        phone: employerForm.phone || null,
+        password: employerForm.password,
+        companyName: employerForm.companyName || null,
+      }
+      const res = await api.post('/auth/register', payload)
+      const newId = res?.data?.profile?.id
+      await loadMeta()
+      if (newId) {
+        setCreateForm((p)=>({ ...p, created_by: newId }))
+      }
+      setCreatingEmployer(false)
+    } catch (e) {
+      alert(e?.response?.data?.error || e.message || 'Employer yaratmaq alınmadı')
+    }
   }
 
   const openEdit = (j) => {
@@ -283,12 +325,15 @@ export default function JobsPage(){
         <div className="formGrid">
           <div className="formRow" style={{gridColumn:'span 2'}}>
             <div className="label">Employer (elan sahibi)</div>
-            <select className="select" value={createForm.created_by} onChange={(e)=>setCreateForm({...createForm, created_by: e.target.value})}>
-              <option value="">Seçin…</option>
-              {(employers || []).map((u) => (
-                <option key={u.id} value={u.id}>{u.full_name || u.email || u.id}</option>
-              ))}
-            </select>
+            <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+              <select className="select" value={createForm.created_by} onChange={(e)=>setCreateForm({...createForm, created_by: e.target.value})} style={{ flex:1 }}>
+                <option value="">Seçin…</option>
+                {(employers || []).map((u) => (
+                  <option key={u.id} value={u.id}>{u.full_name || u.email || u.id}</option>
+                ))}
+              </select>
+              <button className="btn ghost" type="button" onClick={openCreateEmployer}>+ Employer</button>
+            </div>
             <div className="muted" style={{fontSize:12, marginTop:6}}>Qeyd: Admin elanı mütləq bir employer hesabına bağlamalıdır.</div>
           </div>
 
@@ -327,6 +372,15 @@ export default function JobsPage(){
           </div>
           <div className="formRow" />
 
+          <div className="formRow" style={{gridColumn:'span 2'}}>
+            <div className="label">Lokasiya (xəritədən seç)</div>
+            <AdminMapPicker
+              lat={createForm.location_lat ? Number(createForm.location_lat) : null}
+              lng={createForm.location_lng ? Number(createForm.location_lng) : null}
+              onChange={({lat, lng}) => setCreateForm((p)=>({ ...p, location_lat: String(lat), location_lng: String(lng) }))}
+            />
+          </div>
+
           <div className="formRow">
             <div className="label">Lokasiya lat</div>
             <input className="input" value={createForm.location_lat} onChange={(e)=>setCreateForm({...createForm, location_lat: e.target.value})} />
@@ -344,6 +398,42 @@ export default function JobsPage(){
           <div className="formRow" style={{gridColumn:'span 2'}}>
             <div className="label">Təsvir</div>
             <textarea className="input" rows={6} value={createForm.description} onChange={(e)=>setCreateForm({...createForm, description: e.target.value})} />
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={creatingEmployer}
+        title="Yeni employer yarat"
+        onClose={()=>setCreatingEmployer(false)}
+        footer={
+          <>
+            <button className="btn ghost" onClick={()=>setCreatingEmployer(false)}>Ləğv et</button>
+            <button className="btn" onClick={createEmployer}>Yarat</button>
+          </>
+        }
+      >
+        <div className="formGrid">
+          <div className="formRow" style={{gridColumn:'span 2'}}>
+            <div className="label">Ad / Soyad</div>
+            <input className="input" value={employerForm.full_name} onChange={(e)=>setEmployerForm((p)=>({ ...p, full_name: e.target.value }))} />
+          </div>
+          <div className="formRow">
+            <div className="label">Email</div>
+            <input className="input" value={employerForm.email} onChange={(e)=>setEmployerForm((p)=>({ ...p, email: e.target.value }))} />
+          </div>
+          <div className="formRow">
+            <div className="label">Telefon</div>
+            <input className="input" value={employerForm.phone} onChange={(e)=>setEmployerForm((p)=>({ ...p, phone: e.target.value }))} />
+          </div>
+          <div className="formRow" style={{gridColumn:'span 2'}}>
+            <div className="label">Şirkət adı</div>
+            <input className="input" value={employerForm.companyName} onChange={(e)=>setEmployerForm((p)=>({ ...p, companyName: e.target.value }))} />
+          </div>
+          <div className="formRow" style={{gridColumn:'span 2'}}>
+            <div className="label">Şifrə</div>
+            <input className="input" type="password" value={employerForm.password} onChange={(e)=>setEmployerForm((p)=>({ ...p, password: e.target.value }))} />
+            <div className="muted" style={{fontSize:12}}>Bu employer üçün login şifrəsi.</div>
           </div>
         </div>
       </Modal>
