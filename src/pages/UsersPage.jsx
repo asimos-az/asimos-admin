@@ -3,7 +3,7 @@ import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
 import { api } from '../lib/api'
 
-export default function UsersPage(){
+export default function UsersPage() {
   const [q, setQ] = useState('')
   const [role, setRole] = useState('')
   const [items, setItems] = useState([])
@@ -75,16 +75,16 @@ export default function UsersPage(){
   return (
     <Layout title="İstifadəçilər">
       <div className="card">
-        <div className="row" style={{justifyContent:'space-between', flexWrap:'wrap'}}>
-          <div className="row" style={{flexWrap:'wrap'}}>
+        <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <div className="row" style={{ flexWrap: 'wrap' }}>
             <input
               className="input"
               placeholder="Ad / şirkət / telefon axtar..."
               value={q}
-              onChange={(e)=>setQ(e.target.value)}
-              style={{minWidth:260}}
+              onChange={(e) => setQ(e.target.value)}
+              style={{ minWidth: 260 }}
             />
-            <select className="select" value={role} onChange={(e)=>setRole(e.target.value)}>
+            <select className="select" value={role} onChange={(e) => setRole(e.target.value)}>
               <option value="">Bütün rollar</option>
               <option value="seeker">İş axtaran</option>
               <option value="employer">İşçi axtaran</option>
@@ -93,9 +93,9 @@ export default function UsersPage(){
           </div>
           <div className="muted">{loading ? 'Yüklənir…' : `${items.length} istifadəçi`}</div>
         </div>
-        {error ? <div className="pill bad" style={{marginTop:12}}>{error}</div> : null}
+        {error ? <div className="pill bad" style={{ marginTop: 12 }}>{error}</div> : null}
 
-        <div className="tableWrap" style={{marginTop:12}}>
+        <div className="tableWrap" style={{ marginTop: 12 }}>
           <table className="table">
             <thead>
               <tr>
@@ -103,6 +103,7 @@ export default function UsersPage(){
                 <th>Ad Soyad</th>
                 <th>Rol</th>
                 <th>Şirkət</th>
+                <th>Reytinq</th>
                 <th>Telefon</th>
                 <th></th>
               </tr>
@@ -110,14 +111,21 @@ export default function UsersPage(){
             <tbody>
               {items.map((u) => (
                 <tr key={u.id}>
-                  <td className="mono" style={{maxWidth:220, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{u.id}</td>
+                  <td className="mono" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.id}</td>
                   <td>{u.full_name || '-'}</td>
                   <td><span className="pill">{u.role || '-'}</span></td>
                   <td>{u.company_name || '-'}</td>
+                  <td>
+                    {u.average_rating ? (
+                      <span className="pill success">
+                        ★ {Number(u.average_rating).toFixed(1)} <span style={{ opacity: 0.7, fontSize: 10 }}>({u.rating_count})</span>
+                      </span>
+                    ) : '-'}
+                  </td>
                   <td className="mono">{u.phone || '-'}</td>
-                  <td style={{textAlign:'right'}}>
-                    <button className="btn ghost" onClick={()=>openEdit(u)} disabled={saving}>Düzəliş</button>
-                    <button className="btn danger" onClick={()=>del(u.id)} disabled={saving}>Sil</button>
+                  <td style={{ textAlign: 'right' }}>
+                    <button className="btn ghost" onClick={() => openEdit(u)} disabled={saving}>Düzəliş</button>
+                    <button className="btn danger" onClick={() => del(u.id)} disabled={saving}>Sil</button>
                   </td>
                 </tr>
               ))}
@@ -131,10 +139,10 @@ export default function UsersPage(){
       <Modal
         open={!!selected}
         title="İstifadəçini redaktə et"
-        onClose={()=>setSelected(null)}
+        onClose={() => setSelected(null)}
         footer={
           <>
-            <button className="btn ghost" onClick={()=>setSelected(null)} disabled={saving}>Ləğv et</button>
+            <button className="btn ghost" onClick={() => setSelected(null)} disabled={saving}>Ləğv et</button>
             <button className="btn" onClick={save} disabled={saving}>{saving ? 'Yadda saxlanır…' : 'Yadda saxla'}</button>
           </>
         }
@@ -146,22 +154,22 @@ export default function UsersPage(){
           </div>
           <div className="formRow">
             <div className="label">Rol</div>
-            <select className="select" value={selected?.role || 'seeker'} onChange={(e)=>setSelected({...selected, role: e.target.value})}>
+            <select className="select" value={selected?.role || 'seeker'} onChange={(e) => setSelected({ ...selected, role: e.target.value })}>
               <option value="seeker">İş axtaran</option>
               <option value="employer">İşçi axtaran</option>
             </select>
           </div>
           <div className="formRow">
             <div className="label">Ad Soyad</div>
-            <input className="input" value={selected?.full_name || ''} onChange={(e)=>setSelected({...selected, full_name: e.target.value})} />
+            <input className="input" value={selected?.full_name || ''} onChange={(e) => setSelected({ ...selected, full_name: e.target.value })} />
           </div>
           <div className="formRow">
             <div className="label">Şirkət</div>
-            <input className="input" value={selected?.company_name || ''} onChange={(e)=>setSelected({...selected, company_name: e.target.value})} />
+            <input className="input" value={selected?.company_name || ''} onChange={(e) => setSelected({ ...selected, company_name: e.target.value })} />
           </div>
           <div className="formRow">
             <div className="label">Telefon</div>
-            <input className="input" value={selected?.phone || ''} onChange={(e)=>setSelected({...selected, phone: e.target.value})} />
+            <input className="input" value={selected?.phone || ''} onChange={(e) => setSelected({ ...selected, phone: e.target.value })} />
           </div>
         </div>
       </Modal>
