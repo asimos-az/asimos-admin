@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
 import { api } from '../lib/api'
+import { useToast } from '../lib/ToastContext'
 
 export default function UsersPage() {
   const [q, setQ] = useState('')
@@ -11,6 +12,7 @@ export default function UsersPage() {
   const [error, setError] = useState('')
   const [selected, setSelected] = useState(null)
   const [saving, setSaving] = useState(false)
+  const toast = useToast()
 
   const load = async () => {
     setError('')
@@ -19,7 +21,7 @@ export default function UsersPage() {
       const { data } = await api.get('/admin/users', { params: { q, role, limit: 50 } })
       setItems(data?.items || [])
     } catch (e) {
-      setError(e?.response?.data?.error || e.message || 'Yüklənmə zamanı xəta baş verdi')
+      toast.error(e?.response?.data?.error || e.message || 'Yüklənmə zamanı xəta baş verdi')
     } finally {
       setLoading(false)
     }
@@ -48,10 +50,11 @@ export default function UsersPage() {
         phone: selected.phone || null,
       }
       await api.patch(`/admin/users/${selected.id}`, payload)
+      toast.success("İstifadəçi yeniləndi")
       setSelected(null)
       await load()
     } catch (e) {
-      setError(e?.response?.data?.error || e.message || 'Yadda saxlamaq alınmadı')
+      toast.error(e?.response?.data?.error || e.message || 'Yadda saxlamaq alınmadı')
     } finally {
       setSaving(false)
     }
@@ -64,9 +67,10 @@ export default function UsersPage() {
     setSaving(true)
     try {
       await api.delete(`/admin/users/${id}`)
+      toast.success("İstifadəçi silindi")
       await load()
     } catch (e) {
-      setError(e?.response?.data?.error || e.message || 'Silmək alınmadı')
+      toast.error(e?.response?.data?.error || e.message || 'Silmək alınmadı')
     } finally {
       setSaving(false)
     }

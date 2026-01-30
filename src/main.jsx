@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './styles.css'
+import { ToastProvider } from './lib/ToastContext'
 
 // Leaflet styles + marker assets fix (Vite bundling)
 import 'leaflet/dist/leaflet.css'
@@ -21,7 +22,9 @@ L.Icon.Default.mergeOptions({
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </BrowserRouter>
   </React.StrictMode>
 )
