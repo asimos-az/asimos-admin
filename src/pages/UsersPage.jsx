@@ -44,6 +44,7 @@ export default function UsersPage() {
     setSaving(true)
     try {
       const payload = {
+        status: selected.status,
         role: selected.role,
         full_name: selected.full_name,
         company_name: selected.company_name || null,
@@ -71,6 +72,20 @@ export default function UsersPage() {
       await load()
     } catch (e) {
       toast.error(e?.response?.data?.error || e.message || 'Silmək alınmadı')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const approve = async (id) => {
+    if (!confirm('İstifadəçini təsdiqləmək istəyirsiniz?')) return
+    setSaving(true)
+    try {
+      await api.patch(`/admin/users/${id}`, { status: 'active' })
+      toast.success("İstifadəçi təsdiqləndi")
+      await load()
+    } catch (e) {
+      toast.error(e?.response?.data?.error || e.message || 'Xəta baş verdi')
     } finally {
       setSaving(false)
     }
@@ -104,6 +119,7 @@ export default function UsersPage() {
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Status</th>
                 <th>Ad Soyad</th>
                 <th>Rol</th>
                 <th>Şirkət</th>
@@ -116,6 +132,11 @@ export default function UsersPage() {
               {items.map((u) => (
                 <tr key={u.id}>
                   <td className="mono" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.id}</td>
+                  <td>
+                    {u.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
+                      u.status === 'suspended' ? <span className="pill bad">Blok</span> :
+                        <span className="pill good">Aktiv</span>}
+                  </td>
                   <td>{u.full_name || '-'}</td>
                   <td><span className="pill">{u.role || '-'}</span></td>
                   <td>{u.company_name || '-'}</td>
@@ -128,13 +149,16 @@ export default function UsersPage() {
                   </td>
                   <td className="mono">{u.phone || '-'}</td>
                   <td style={{ textAlign: 'right' }}>
+                    {u.status === 'pending' && (
+                      <button className="btn good" onClick={() => approve(u.id)} disabled={saving} style={{ marginRight: 8 }}>Təsdiqlə</button>
+                    )}
                     <button className="btn ghost" onClick={() => openEdit(u)} disabled={saving}>Düzəliş</button>
                     <button className="btn danger" onClick={() => del(u.id)} disabled={saving}>Sil</button>
                   </td>
                 </tr>
               ))}
-              {(!loading && items.length === 0) ? <tr><td colSpan="6" className="muted">İstifadəçi yoxdur</td></tr> : null}
-              {loading ? <tr><td colSpan="6" className="muted">Yüklənir…</td></tr> : null}
+              {(!loading && items.length === 0) ? <tr><td colSpan="8" className="muted">İstifadəçi yoxdur</td></tr> : null}
+              {loading ? <tr><td colSpan="8" className="muted">Yüklənir…</td></tr> : null}
             </tbody>
           </table>
         </div>
@@ -155,6 +179,14 @@ export default function UsersPage() {
           <div className="formRow">
             <div className="label">İstifadəçi ID</div>
             <div className="mono">{selected?.id}</div>
+          </div>
+          <div className="formRow">
+            <div className="label">Status</div>
+            <select className="select" value={selected?.status || 'active'} onChange={(e) => setSelected({ ...selected, status: e.target.value })}>
+              <option value="active">Aktiv</option>
+              <option value="pending">Gözləyir (Pending)</option>
+              <option value="suspended">Bloklanıb</option>
+            </select>
           </div>
           <div className="formRow">
             <div className="label">Rol</div>
