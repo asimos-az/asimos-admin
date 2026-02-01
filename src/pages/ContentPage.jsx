@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
-import { Save, AlertCircle, FileText, CheckCircle2 } from 'lucide-react';
+import { Save, AlertCircle, CheckCircle2, FileText, Loader2 } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
+// Using standard CSS classes from styles.css
+
 // You might need to adjust this import based on where your API client/instance is
-// Assuming standard fetch or axios in App context, but here I'll use fetch with the token from localStorage
 const API_URL = import.meta.env.VITE_API_BASE_URL || "https://asimos-backend.onrender.com";
 
 const modules = {
@@ -29,6 +30,7 @@ export default function ContentPage() {
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
     const [loading, setLoading] = useState(false);
+    const [saveLoading, setSaveLoading] = useState(false);
     const [message, setMessage] = useState(null);
 
     useEffect(() => {
@@ -56,10 +58,10 @@ export default function ContentPage() {
     }
 
     async function save() {
-        setLoading(true);
+        setSaveLoading(true);
         setMessage(null);
         try {
-            const token = localStorage.getItem('token'); // Assuming JWT is stored here
+            const token = localStorage.getItem('token');
             const res = await fetch(`${API_URL}/admin/content/${slug}`, {
                 method: 'PUT',
                 headers: {
@@ -70,7 +72,7 @@ export default function ContentPage() {
             });
 
             if (res.ok) {
-                setMessage({ type: 'success', text: 'Məlumat uğurla yadda saxlanıldı!' });
+                setMessage({ type: 'success', text: 'Yadda saxlanıldı!' });
                 setTimeout(() => setMessage(null), 3000);
             } else {
                 const data = await res.json();
@@ -79,89 +81,84 @@ export default function ContentPage() {
         } catch (e) {
             setMessage({ type: 'error', text: e.message });
         } finally {
-            setLoading(false);
+            setSaveLoading(false);
         }
     }
 
     return (
         <Layout title="Məzmun İdarəetməsi" subtitle="Mobil tətbiq üçün statik səhifələri redaktə edin.">
-            <div className="max-w-5xl mx-auto space-y-6">
+            <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-                {/* Page Selector Tabs */}
-                <div className="flex items-center gap-2 p-1 bg-gray-100/80 rounded-xl w-fit">
+                {/* Helper Tabs */}
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     <button
                         onClick={() => setSlug('terms')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${slug === 'terms'
-                                ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5'
-                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
-                            }`}
+                        className={`tabBtn ${slug === 'terms' ? 'active' : ''}`}
                     >
                         <FileText size={16} />
                         Qaydalar və Şərtlər
                     </button>
-
-                    {/* Future pages can be added here */}
-                    {/* <button className="..." disabled>Məxfilik Siyasəti (Tezliklə)</button> */}
+                    {/* Add more tabs here if needed */}
                 </div>
 
                 {message && (
-                    <div className={`p-4 rounded-xl flex items-center gap-3 animate-fade-in ${message.type === 'success'
-                            ? 'bg-green-50 text-green-700 border border-green-100'
-                            : 'bg-red-50 text-red-700 border border-red-100'
-                        }`}>
-                        {message.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-                        <span className="font-medium">{message.text}</span>
+                    <div className={`pill ${message.type === 'success' ? 'good' : 'bad'}`} style={{ alignSelf: 'flex-start', fontSize: 14, padding: '10px 16px', borderRadius: 16 }}>
+                        {message.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                        {message.text}
                     </div>
                 )}
 
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 overflow-hidden">
-                    {/* Header Input */}
-                    <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                            Səhifə Başlığı
-                        </label>
+                {/* content card */}
+                <div className="card">
+                    <div className="formRow">
+                        <label className="label">SƏHİFƏ BAŞLIĞI</label>
                         <input
-                            type="text"
+                            className="input"
+                            placeholder="Qaydaların başlığı..."
                             value={title}
                             onChange={e => setTitle(e.target.value)}
-                            className="w-full text-xl font-bold bg-transparent border-none placeholder-gray-400 focus:outline-none focus:ring-0 p-0 text-gray-900"
-                            placeholder="Başlıq daxil edin (məs: Qaydalar və Şərtlər)..."
+                            style={{ fontSize: 18, fontWeight: 700 }}
                         />
                     </div>
 
-                    {/* Editor */}
-                    <div className="p-6">
-                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                            Məzmun (Rich Text)
-                        </label>
-                        <div className="prose-editor">
+                    <div style={{ height: 24 }} />
+
+                    <div className="formRow">
+                        <label className="label">MƏZMUN (RICH TEXT)</label>
+                        {loading ? (
+                            <div style={{ height: 300, display: 'grid', placeItems: 'center', color: 'var(--muted)', background: 'rgba(255,255,255,0.5)', borderRadius: 20, border: '1px solid var(--stroke)' }}>
+                                <Loader2 className="animate-spin" size={32} />
+                            </div>
+                        ) : (
                             <ReactQuill
                                 theme="snow"
                                 value={body}
                                 onChange={setBody}
                                 modules={modules}
                                 formats={formats}
-                                className="h-96 mb-12" // mb-12 to make space for toolbar
-                                placeholder="Məzmunu buraya yazın..."
+                                placeholder="Mətni buraya daxil edin..."
                             />
-                        </div>
+                        )}
+                        <p className="label" style={{ marginTop: 6 }}>
+                            Mətni qalın, kursiv və ya siyahı şəklində formatlaya bilərsiniz. Mobil tətbiqdə eyni formatda görünəcək.
+                        </p>
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="bg-gray-50 p-4 px-6 border-t border-gray-100 flex justify-end">
+                    <div style={{ height: 32 }} />
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid var(--stroke)', margin: '0 -16px -16px -16px', padding: 16, background: 'rgba(255,255,255,0.3)' }}>
                         <button
+                            className="btn primary"
                             onClick={save}
-                            disabled={loading}
-                            className={`
-                flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg shadow-blue-500/20 transition-all transform active:scale-95
-                ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5'}
-              `}
+                            disabled={saveLoading || loading}
+                            style={{ padding: '12px 24px', fontSize: 15, fontWeight: 700 }}
                         >
-                            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={20} />}
-                            <span>{loading ? 'Yadda saxlanılır...' : 'Yadda saxla'}</span>
+                            {saveLoading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                            {saveLoading ? 'Saxlanılır...' : 'Yadda saxla'}
                         </button>
                     </div>
                 </div>
+
             </div>
         </Layout>
     );
