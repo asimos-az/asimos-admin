@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
 import { api } from '../lib/api'
 import { useToast } from '../lib/ToastContext'
+import { AlertTriangle } from 'lucide-react'
 
 export default function UsersPage() {
   const [q, setQ] = useState('')
@@ -10,8 +11,12 @@ export default function UsersPage() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selected, setSelected] = useState(null)
-  const [saving, setSaving] = useState(false)
+
+  // Confirmation Modal State
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmAction, setConfirmAction] = useState(null) // { type: 'delete' | 'approve', id: string, title: string }
+  const [processing, setProcessing] = useState(false)
+
   const toast = useToast()
 
   const load = async () => {
@@ -29,65 +34,45 @@ export default function UsersPage() {
 
   useEffect(() => { load() }, [])
 
-  const openEdit = (u) => {
-    setSelected({
-      ...u,
-      full_name: u.full_name || '',
-      company_name: u.company_name || '',
-      phone: u.phone || '',
-      role: u.role || 'seeker',
+  // Action Handlers
+  const handleApproveClick = (u) => {
+    setConfirmAction({
+      type: 'approve',
+      id: u.id,
+      title: 'İstifadəçini təsdiqlə',
+      message: `"${u.full_name || u.email}" istifadəçisini təsdiqləmək istəyirsiniz?`
     })
+    setConfirmOpen(true)
   }
 
-  const save = async () => {
-    if (!selected?.id) return
-    setSaving(true)
+  const handleDeleteClick = (u) => {
+    setConfirmAction({
+      type: 'delete',
+      id: u.id,
+      title: 'İstifadəçini sil',
+      message: `"${u.full_name || u.email}" istifadəçisini silmək istəyirsiniz? Bu əməl geri qaytarıla bilməz.`
+    })
+    setConfirmOpen(true)
+  }
+
+  const performAction = async () => {
+    if (!confirmAction) return
+    setProcessing(true)
     try {
-      const payload = {
-        status: selected.status,
-        role: selected.role,
-        full_name: selected.full_name,
-        company_name: selected.company_name || null,
-        phone: selected.phone || null,
+      if (confirmAction.type === 'approve') {
+        await api.patch(`/admin/users/${confirmAction.id}`, { status: 'active' })
+        toast.success("İstifadəçi uğurla təsdiqləndi")
+      } else if (confirmAction.type === 'delete') {
+        await api.delete(`/admin/users/${confirmAction.id}`)
+        toast.success("İstifadəçi uğurla silindi")
       }
-      await api.patch(`/admin/users/${selected.id}`, payload)
-      toast.success("İstifadəçi yeniləndi")
-      setSelected(null)
-      await load()
-    } catch (e) {
-      toast.error(e?.response?.data?.error || e.message || 'Yadda saxlamaq alınmadı')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const del = async (id) => {
-    if (!id) return
-    const ok = confirm('İstifadəçini silmək istəyirsiniz? Bu əməl profil + auth istifadəçisini siləcək.')
-    if (!ok) return
-    setSaving(true)
-    try {
-      await api.delete(`/admin/users/${id}`)
-      toast.success("İstifadəçi silindi")
-      await load()
-    } catch (e) {
-      toast.error(e?.response?.data?.error || e.message || 'Silmək alınmadı')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const approve = async (id) => {
-    if (!confirm('İstifadəçini təsdiqləmək istəyirsiniz?')) return
-    setSaving(true)
-    try {
-      await api.patch(`/admin/users/${id}`, { status: 'active' })
-      toast.success("İstifadəçi təsdiqləndi")
+      setConfirmOpen(false)
+      setConfirmAction(null)
       await load()
     } catch (e) {
       toast.error(e?.response?.data?.error || e.message || 'Xəta baş verdi')
     } finally {
-      setSaving(false)
+      setProcessing(false)
     }
   }
 
@@ -150,10 +135,10 @@ export default function UsersPage() {
                   <td className="mono">{u.phone || '-'}</td>
                   <td style={{ textAlign: 'right' }}>
                     {u.status === 'pending' && (
-                      <button className="btn good" onClick={() => approve(u.id)} disabled={saving} style={{ marginRight: 8 }}>Təsdiqlə</button>
+                      <button className="btn good" onClick={() => handleApproveClick(u)} disabled={processing} style={{ marginRight: 8 }}>Təsdiqlə</button>
                     )}
-                    <button className="btn ghost" onClick={() => openEdit(u)} disabled={saving}>Düzəliş</button>
-                    <button className="btn danger" onClick={() => del(u.id)} disabled={saving}>Sil</button>
+                    {/* Edit button removed as requested */}
+                    <button className="btn danger" onClick={() => handleDeleteClick(u)} disabled={processing}>Sil</button>
                   </td>
                 </tr>
               ))}
@@ -164,51 +149,34 @@ export default function UsersPage() {
         </div>
       </div>
 
+      {/* Confirmation Modal */}
       <Modal
-        open={!!selected}
-        title="İstifadəçini redaktə et"
-        onClose={() => setSelected(null)}
+        open={confirmOpen}
+        title={confirmAction?.title || 'Təsdiqlə'}
+        onClose={() => setConfirmOpen(false)}
         footer={
           <>
-            <button className="btn ghost" onClick={() => setSelected(null)} disabled={saving}>Ləğv et</button>
-            <button className="btn" onClick={save} disabled={saving}>{saving ? 'Yadda saxlanır…' : 'Yadda saxla'}</button>
+            <button className="btn ghost" onClick={() => setConfirmOpen(false)} disabled={processing}>Ləğv et</button>
+            <button
+              className={`btn ${confirmAction?.type === 'delete' ? 'danger' : 'primary'}`}
+              onClick={performAction}
+              disabled={processing}
+            >
+              {processing ? 'İcra olunur...' : (confirmAction?.type === 'delete' ? 'Sil' : 'Təsdiqlə')}
+            </button>
           </>
         }
       >
-        <div className="formGrid">
-          <div className="formRow">
-            <div className="label">İstifadəçi ID</div>
-            <div className="mono">{selected?.id}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ width: 60, height: 60, borderRadius: '50%', background: confirmAction?.type === 'delete' ? 'rgba(255, 0, 0, 0.1)' : 'rgba(16, 185, 129, 0.1)', display: 'grid', placeItems: 'center', marginBottom: 16 }}>
+            <AlertTriangle size={32} color={confirmAction?.type === 'delete' ? '#ef4444' : '#10b981'} />
           </div>
-          <div className="formRow">
-            <div className="label">Status</div>
-            <select className="select" value={selected?.status || 'active'} onChange={(e) => setSelected({ ...selected, status: e.target.value })}>
-              <option value="active">Aktiv</option>
-              <option value="pending">Gözləyir (Pending)</option>
-              <option value="suspended">Bloklanıb</option>
-            </select>
-          </div>
-          <div className="formRow">
-            <div className="label">Rol</div>
-            <select className="select" value={selected?.role || 'seeker'} onChange={(e) => setSelected({ ...selected, role: e.target.value })}>
-              <option value="seeker">İş axtaran</option>
-              <option value="employer">İşçi axtaran</option>
-            </select>
-          </div>
-          <div className="formRow">
-            <div className="label">Ad Soyad</div>
-            <input className="input" value={selected?.full_name || ''} onChange={(e) => setSelected({ ...selected, full_name: e.target.value })} />
-          </div>
-          <div className="formRow">
-            <div className="label">Şirkət</div>
-            <input className="input" value={selected?.company_name || ''} onChange={(e) => setSelected({ ...selected, company_name: e.target.value })} />
-          </div>
-          <div className="formRow">
-            <div className="label">Telefon</div>
-            <input className="input" value={selected?.phone || ''} onChange={(e) => setSelected({ ...selected, phone: e.target.value })} />
-          </div>
+          <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--text)', margin: 0 }}>
+            {confirmAction?.message}
+          </p>
         </div>
       </Modal>
+
     </Layout>
   )
 }
