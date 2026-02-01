@@ -10,9 +10,6 @@ import {
   Search,
   Tags,
   Users,
-  Search,
-  Tags,
-  Users,
   X,
   FileText,
 } from 'lucide-react'
