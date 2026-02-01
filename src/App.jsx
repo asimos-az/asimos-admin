@@ -8,11 +8,12 @@ import JobsPage from './pages/JobsPage.jsx'
 import EventsPage from './pages/EventsPage.jsx'
 import CategoriesPage from './pages/CategoriesPage.jsx'
 import MapPage from './pages/MapPage.jsx'
+import ContentPage from './pages/ContentPage.jsx'
 
-export default function App(){
+export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage/>} />
+      <Route path="/login" element={<LoginPage />} />
 
       <Route
         path="/"
@@ -60,6 +61,15 @@ export default function App(){
         element={
           <RequireAuth>
             <MapPage />
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/content"
+        element={
+          <RequireAuth>
+            <ContentPage />
           </RequireAuth>
         }
       />
