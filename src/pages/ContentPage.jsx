@@ -58,9 +58,6 @@ export default function ContentPage() {
         setSaveLoading(true);
         setMessage(null);
         try {
-            import { getToken } from '../lib/auth'; // Ensure this is imported at the top
-
-            // ... inside component
             const token = getToken();
             const res = await fetch(`${API_URL}/admin/content/${slug}`, {
                 method: 'PUT',
