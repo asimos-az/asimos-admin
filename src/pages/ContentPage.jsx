@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
+import { getToken } from '../lib/auth';
 import { Save, AlertCircle, CheckCircle2, FileText, Loader2, Type } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -57,7 +58,10 @@ export default function ContentPage() {
         setSaveLoading(true);
         setMessage(null);
         try {
-            const token = localStorage.getItem('token');
+            import { getToken } from '../lib/auth'; // Ensure this is imported at the top
+
+            // ... inside component
+            const token = getToken();
             const res = await fetch(`${API_URL}/admin/content/${slug}`, {
                 method: 'PUT',
                 headers: {
