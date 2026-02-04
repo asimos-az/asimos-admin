@@ -65,7 +65,7 @@ export default function JobsPage() {
       title: '',
       category: '',
       wage: '',
-      whatsapp: '',
+      whatsapp: '+994',
       contact_phone: '+994',
       contact_link: '',
       description: '',
