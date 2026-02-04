@@ -11,16 +11,16 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-function ClickToSet({ onPick }){
+function ClickToSet({ onPick }) {
   useMapEvents({
-    click(e){
+    click(e) {
       onPick(e.latlng)
     },
   })
   return null
 }
 
-async function nominatimSearchAZ(q){
+async function nominatimSearchAZ(q) {
   const query = (q || '').trim()
   if (!query) return []
   const url = new URL('https://nominatim.openstreetmap.org/search')
@@ -31,7 +31,8 @@ async function nominatimSearchAZ(q){
   // Azerbaijan only
   url.searchParams.set('countrycodes', 'az')
   // Prefer results inside AZ bounding box (west,south,east,north)
-  url.searchParams.set('viewbox', '44.77,38.39,50.63,41.95')
+  // Azerbaijan wide bounding box
+  url.searchParams.set('viewbox', '44.0,38.0,51.0,42.0')
   url.searchParams.set('bounded', '1')
 
   const res = await fetch(url.toString(), {
@@ -43,12 +44,12 @@ async function nominatimSearchAZ(q){
   return await res.json()
 }
 
-export default function AdminMapPicker({ lat, lng, onChange }){
+export default function AdminMapPicker({ lat, lng, onChange }) {
   const has = Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))
   const center = useMemo(() => {
     if (has) return [Number(lat), Number(lng)]
-    // Bakı default
-    return [40.4093, 49.8671]
+    // Azerbaijan Center (approx)
+    return [40.5, 47.5]
   }, [lat, lng, has])
 
   const mapRef = useRef(null)
@@ -75,7 +76,7 @@ export default function AdminMapPicker({ lat, lng, onChange }){
       setSearching(true)
       const r = await nominatimSearchAZ(q)
       setResults(Array.isArray(r) ? r : [])
-    } catch (e){
+    } catch (e) {
       setErr('Axtarış xətası')
       setResults([])
     } finally {
@@ -90,8 +91,8 @@ export default function AdminMapPicker({ lat, lng, onChange }){
           className="input mapSearchInput"
           placeholder="Ünvan axtar (yalnız Azərbaycan)…"
           value={q}
-          onChange={(e)=>setQ(e.target.value)}
-          onKeyDown={(e)=>{ if (e.key === 'Enter') doSearch() }}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') doSearch() }}
         />
         <button className="btn ghost" type="button" onClick={doSearch} disabled={searching || !q.trim()}>
           {searching ? 'Axtarılır…' : 'Axtar'}
@@ -122,15 +123,15 @@ export default function AdminMapPicker({ lat, lng, onChange }){
       <MapContainer
         key={key}
         center={center}
-        zoom={has ? 15 : 12}
+        zoom={has ? 15 : 7}
         style={{ height: 260, width: '100%' }}
-        whenCreated={(m)=>{ mapRef.current = m; }}
+        whenCreated={(m) => { mapRef.current = m; }}
       >
         <TileLayer
           attribution='&copy; OpenStreetMap'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <ClickToSet onPick={(ll)=>pick({ lat: ll.lat, lng: ll.lng })} />
+        <ClickToSet onPick={(ll) => pick({ lat: ll.lat, lng: ll.lng })} />
         {has ? <Marker position={[Number(lat), Number(lng)]} /> : null}
       </MapContainer>
       <div className="muted" style={{ fontSize: 12, marginTop: 8 }}>

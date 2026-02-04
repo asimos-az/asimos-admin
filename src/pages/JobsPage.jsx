@@ -17,6 +17,8 @@ export default function JobsPage() {
     category: '',
     wage: '',
     whatsapp: '',
+    contact_phone: '+994',
+    contact_link: '',
     description: '',
     is_daily: false,
     notify_radius_m: 500,
@@ -64,6 +66,8 @@ export default function JobsPage() {
       category: '',
       wage: '',
       whatsapp: '',
+      contact_phone: '+994',
+      contact_link: '',
       description: '',
       is_daily: false,
       notify_radius_m: 500,
@@ -85,7 +89,10 @@ export default function JobsPage() {
         title: createForm.title,
         category: createForm.category || null,
         wage: createForm.wage || null,
+        wage: createForm.wage || null,
         whatsapp: createForm.whatsapp || null,
+        contact_phone: createForm.contact_phone || null,
+        contact_link: createForm.contact_link || null,
         description: createForm.description || '',
         is_daily: !!createForm.is_daily,
         notify_radius_m: createForm.notify_radius_m ? Number(createForm.notify_radius_m) : null,
@@ -156,6 +163,8 @@ export default function JobsPage() {
       category: j.category || '',
       wage: j.wage || '',
       whatsapp: j.whatsapp || '',
+      contact_phone: j.contact_phone || '+994',
+      contact_link: j.contact_link || '',
       description: j.description || '',
       notify_radius_m: j.notify_radius_m || '',
       location_address: j.location_address || '',
@@ -172,6 +181,8 @@ export default function JobsPage() {
         category: selected.category || null,
         wage: selected.wage || null,
         whatsapp: selected.whatsapp || null,
+        contact_phone: selected.contact_phone || null,
+        contact_link: selected.contact_link || null,
         description: selected.description || '',
         is_daily: !!selected.is_daily,
         notify_radius_m: selected.notify_radius_m ? Number(selected.notify_radius_m) : null,
@@ -331,6 +342,14 @@ export default function JobsPage() {
             <div className="label">WhatsApp</div>
             <input className="input" value={selected?.whatsapp || ''} onChange={(e) => setSelected({ ...selected, whatsapp: e.target.value })} />
           </div>
+          <div className="formRow">
+            <div className="label">Əlaqə Nömrəsi</div>
+            <input className="input" value={selected?.contact_phone || ''} onChange={(e) => setSelected({ ...selected, contact_phone: e.target.value })} />
+          </div>
+          <div className="formRow">
+            <div className="label">Link</div>
+            <input className="input" value={selected?.contact_link || ''} onChange={(e) => setSelected({ ...selected, contact_link: e.target.value })} />
+          </div>
 
           <div className="formRow" style={{ gridColumn: 'span 2' }}>
             <div className="label">Lokasiya ünvanı</div>
@@ -389,6 +408,14 @@ export default function JobsPage() {
           <div className="formRow">
             <div className="label">WhatsApp</div>
             <input className="input" value={createForm.whatsapp} onChange={(e) => setCreateForm({ ...createForm, whatsapp: e.target.value })} />
+          </div>
+          <div className="formRow">
+            <div className="label">Əlaqə Nömrəsi</div>
+            <input className="input" value={createForm.contact_phone} onChange={(e) => setCreateForm({ ...createForm, contact_phone: e.target.value })} />
+          </div>
+          <div className="formRow">
+            <div className="label">Link (Instagram/Web)</div>
+            <input className="input" value={createForm.contact_link} onChange={(e) => setCreateForm({ ...createForm, contact_link: e.target.value })} />
           </div>
           <div className="formRow">
             <div className="label">Gündəlik iş?</div>
