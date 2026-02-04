@@ -45,7 +45,8 @@ async function nominatimSearchAZ(q) {
 }
 
 export default function AdminMapPicker({ lat, lng, onChange }) {
-  const has = Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))
+  // Fix: strict check to avoid 0,0 (Ocean) on empty strings
+  const has = lat && lng && Number.isFinite(Number(lat)) && Number.isFinite(Number(lng)) && (Number(lat) !== 0 || Number(lng) !== 0)
   const center = useMemo(() => {
     if (has) return [Number(lat), Number(lng)]
     // Azerbaijan Center (approx)
