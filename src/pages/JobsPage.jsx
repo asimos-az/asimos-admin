@@ -332,6 +332,7 @@ export default function JobsPage() {
           <div className="formRow">
             <div className="label">Bildiriş radiusu (m)</div>
             <input className="input" value={selected?.notify_radius_m || ''} onChange={(e) => setSelected({ ...selected, notify_radius_m: e.target.value })} />
+            <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Daxil edilən rəqəm metr ilə hesablanır (məs: 500 = 500 metr).</div>
           </div>
 
           <div className="formRow">
@@ -428,6 +429,7 @@ export default function JobsPage() {
           <div className="formRow">
             <div className="label">Bildiriş radiusu (m)</div>
             <input className="input" value={createForm.notify_radius_m} onChange={(e) => setCreateForm({ ...createForm, notify_radius_m: e.target.value })} />
+            <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Daxil edilən rəqəm metr ilə hesablanır (məs: 500 = 500 metr).</div>
           </div>
           <div className="formRow" />
 
