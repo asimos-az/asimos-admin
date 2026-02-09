@@ -112,7 +112,7 @@ export default function ContentPage() {
 
                     {/* Header Section inside Card */}
                     <div style={{ padding: '24px 32px', borderBottom: '1px solid var(--stroke)', background: 'linear-gradient(to bottom, #fff, #fafafa)' }}>
-                        <label className="label" style={{ marginBottom: 8, display: 'block', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <label className="label" style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Type size={14} /> SƏHİFƏ BAŞLIĞI
                         </label>
                         <input

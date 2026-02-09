@@ -89,7 +89,7 @@ export default function JobsPage() {
         title: createForm.title,
         category: createForm.category || null,
         wage: createForm.wage || null,
-        wage: createForm.wage || null,
+
         whatsapp: createForm.whatsapp || null,
         contact_phone: createForm.contact_phone || null,
         contact_link: createForm.contact_link || null,
