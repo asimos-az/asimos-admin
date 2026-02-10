@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import UsersPage from './pages/UsersPage.jsx'
 import JobsPage from './pages/JobsPage.jsx'
+import JobDetailPage from './pages/JobDetailPage.jsx'
 import EventsPage from './pages/EventsPage.jsx'
 import CategoriesPage from './pages/CategoriesPage.jsx'
 import MapPage from './pages/MapPage.jsx'
@@ -37,6 +38,14 @@ export default function App() {
         element={
           <RequireAuth>
             <JobsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/jobs/:id"
+        element={
+          <RequireAuth>
+            <JobDetailPage />
           </RequireAuth>
         }
       />

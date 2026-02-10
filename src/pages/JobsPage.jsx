@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
 import AdminMapPicker from '../components/AdminMapPicker.jsx'
 import { api } from '../lib/api'
 
 export default function JobsPage() {
+  const navigate = useNavigate()
   const [q, setQ] = useState('')
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -270,6 +272,7 @@ export default function JobsPage() {
                       {j.status === 'pending' && (
                         <button className="btn good" onClick={() => approve(j.id)} disabled={saving}>Təsdiq</button>
                       )}
+                      <button className="btn" onClick={() => navigate(`/jobs/${j.id}`)}>Ətraflı</button>
                       <button className="btn ghost" onClick={() => openEdit(j)}>Düzəliş</button>
                       <button className="btn danger" onClick={() => del(j.id)}>Sil</button>
                     </div>
