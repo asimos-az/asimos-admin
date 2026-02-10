@@ -8,7 +8,9 @@ import JobsPage from './pages/JobsPage.jsx'
 import EventsPage from './pages/EventsPage.jsx'
 import CategoriesPage from './pages/CategoriesPage.jsx'
 import MapPage from './pages/MapPage.jsx'
+import MapPage from './pages/MapPage.jsx'
 import ContentPage from './pages/ContentPage.jsx'
+import SupportPage from './pages/SupportPage.jsx'
 
 export default function App() {
   return (
@@ -70,6 +72,14 @@ export default function App() {
         element={
           <RequireAuth>
             <ContentPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/support"
+        element={
+          <RequireAuth>
+            <SupportPage />
           </RequireAuth>
         }
       />

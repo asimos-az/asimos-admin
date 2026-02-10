@@ -11,7 +11,9 @@ import {
   Tags,
   Users,
   X,
+  X,
   FileText,
+  MessageSquare,
 } from 'lucide-react'
 import { clearToken } from '../lib/auth'
 
@@ -67,6 +69,7 @@ export default function Layout({ title, children, subtitle }) {
           <NavItem to="/jobs" icon={Briefcase} label="Elanlar" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/categories" icon={Tags} label="Kateqoriyalar" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/content" icon={FileText} label="Qaydalar" onClick={mobile ? closeDrawer : undefined} />
+          <NavItem to="/support" icon={MessageSquare} label="Dəstək" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/map" icon={Map} label="Xəritə" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/events" icon={Activity} label="Proseslər" onClick={mobile ? closeDrawer : undefined} />
         </nav>
