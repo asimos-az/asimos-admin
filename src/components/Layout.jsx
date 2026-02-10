@@ -11,7 +11,6 @@ import {
   Tags,
   Users,
   X,
-  X,
   FileText,
   MessageSquare,
 } from 'lucide-react'

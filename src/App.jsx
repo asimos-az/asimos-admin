@@ -8,7 +8,6 @@ import JobsPage from './pages/JobsPage.jsx'
 import EventsPage from './pages/EventsPage.jsx'
 import CategoriesPage from './pages/CategoriesPage.jsx'
 import MapPage from './pages/MapPage.jsx'
-import MapPage from './pages/MapPage.jsx'
 import ContentPage from './pages/ContentPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 
