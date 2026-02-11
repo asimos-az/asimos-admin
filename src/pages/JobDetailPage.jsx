@@ -82,9 +82,8 @@ export default function JobDetailPage() {
                 <button className="btn ghost" onClick={() => navigate('/jobs')}>&larr; Geri</button>
             </div>
 
-            <div className="grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
+            <div className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 24 }}>
 
-                {/* Left Column: Details */}
                 <div className="card">
                     <div className="row" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
                         <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{job.title}</h2>
@@ -166,7 +165,6 @@ export default function JobDetailPage() {
                     </div>
                 </div>
 
-                {/* Right Column: Map & Location */}
                 <div className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 600 }}>
                     <div style={{ padding: 16, borderBottom: '1px solid var(--stroke)', background: '#f9fafb' }}>
                         <h3 style={{ margin: 0, fontSize: 16 }}>Lokasiya</h3>
