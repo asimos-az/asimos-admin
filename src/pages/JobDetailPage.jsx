@@ -82,7 +82,7 @@ export default function JobDetailPage() {
                 <button className="btn ghost" onClick={() => navigate('/jobs')}>&larr; Geri</button>
             </div>
 
-            <div className="grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'start' }}>
+            <div className="grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
 
                 {/* Left Column: Details */}
                 <div className="card">
@@ -167,25 +167,25 @@ export default function JobDetailPage() {
                 </div>
 
                 {/* Right Column: Map & Location */}
-                <div className="card" style={{ padding: 0, overflow: 'hidden', minHeight: 400, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ padding: 16, borderBottom: '1px solid var(--stroke)' }}>
+                <div className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 600 }}>
+                    <div style={{ padding: 16, borderBottom: '1px solid var(--stroke)', background: '#f9fafb' }}>
                         <h3 style={{ margin: 0, fontSize: 16 }}>Lokasiya</h3>
                         <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
                             {job.location?.address || 'Ünvan qeyd olunmayıb'}
                         </div>
                         {locationValid && (
-                            <div className="mono" style={{ fontSize: 11, marginTop: 4 }}>
+                            <div className="mono" style={{ fontSize: 11, marginTop: 4, color: '#6b7280' }}>
                                 {job.location.lat}, {job.location.lng}
                             </div>
                         )}
                     </div>
 
-                    <div style={{ flex: 1, minHeight: 320, position: 'relative' }}>
+                    <div style={{ flex: 1, position: 'relative' }}>
                         {locationValid ? (
                             <MapContainer
                                 center={[job.location.lat, job.location.lng]}
-                                zoom={13}
-                                style={{ width: '100%', height: '100%' }}
+                                zoom={15}
+                                style={{ width: '100%', height: '100%', minHeight: 500 }}
                             >
                                 <TileLayer
                                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -196,7 +196,7 @@ export default function JobDetailPage() {
                                 </Marker>
                             </MapContainer>
                         ) : (
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted)', padding: 20 }}>
                                 Xəritə məlumatı yoxdur
                             </div>
                         )}
