@@ -118,7 +118,14 @@ export default function JobDetailPage() {
                             </tr>
                             <tr>
                                 <td className="muted">Yaradan (User ID)</td>
-                                <td className="mono">{job.createdBy}</td>
+                                <td className="mono">
+                                    {job.creator ? (
+                                        <div>
+                                            {job.creator.email || job.creator.fullName || 'Adsız'}
+                                            <div style={{ fontSize: 10, color: '#9ca3af' }}>{job.creator.role}</div>
+                                        </div>
+                                    ) : job.createdBy}
+                                </td>
                             </tr>
                             <tr>
                                 <td className="muted">Tarix</td>
