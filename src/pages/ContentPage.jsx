@@ -86,7 +86,6 @@ export default function ContentPage() {
         <Layout title="Məzmun İdarəetməsi" subtitle="Mobil tətbiq üçün statik səhifələri redaktə edin.">
             <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-                {/* Top Controls: Tabs & Feedback */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', gap: 10 }}>
                         <button
@@ -96,7 +95,6 @@ export default function ContentPage() {
                             <FileText size={16} />
                             Qaydalar və Şərtlər
                         </button>
-                        {/* Can add privacy policy tab here later */}
                     </div>
 
                     {message && (
