@@ -34,7 +34,7 @@ export default function SupportPage() {
     async function loadList(silent = false) {
         try {
             if (!silent) setLoading(true)
-            const res = await api.get('/admin/support')
+            const res = await api.get(`/admin/support?_t=${Date.now()}`)
             setTickets(res.data.items || [])
         } catch (e) {
             // alert(e.message) // hide background errors
@@ -45,7 +45,7 @@ export default function SupportPage() {
 
     async function selectTicket(t, silent = false) {
         try {
-            const res = await api.get(`/admin/support/${t.id}`)
+            const res = await api.get(`/admin/support/${t.id}?_t=${Date.now()}`)
             setSelectedTicket(res.data)
         } catch (e) {
             if (!silent) alert(e.message)
@@ -128,7 +128,7 @@ export default function SupportPage() {
                 </div>
 
                 {/* Right Side: Chat Window */}
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff', minHeight: 0 }}>
                     {selectedTicket ? (
                         <>
                             {/* Header */}
