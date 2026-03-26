@@ -13,26 +13,42 @@ export default function SupportPage() {
 
     useEffect(() => {
         loadList()
+
+        // Real-time polling
+        const interval = setInterval(() => {
+            if (!loading) loadList(true)
+        }, 3000)
+
+        return () => clearInterval(interval)
     }, [])
 
-    async function loadList() {
+    // Add a ref or effect to keep selectedTicket updated in the background
+    useEffect(() => {
+        if (!selectedTicket) return
+        const interval = setInterval(() => {
+            selectTicket(selectedTicket, true)
+        }, 3000)
+        return () => clearInterval(interval)
+    }, [selectedTicket?.id])
+
+    async function loadList(silent = false) {
         try {
-            setLoading(true)
+            if (!silent) setLoading(true)
             const res = await api.get('/admin/support')
             setTickets(res.data.items || [])
         } catch (e) {
-            alert(e.message)
+            // alert(e.message) // hide background errors
         } finally {
-            setLoading(false)
+            if (!silent) setLoading(false)
         }
     }
 
-    async function selectTicket(t) {
+    async function selectTicket(t, silent = false) {
         try {
             const res = await api.get(`/admin/support/${t.id}`)
             setSelectedTicket(res.data)
         } catch (e) {
-            alert(e.message)
+            if (!silent) alert(e.message)
         }
     }
 
