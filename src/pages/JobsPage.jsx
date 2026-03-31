@@ -171,6 +171,8 @@ export default function JobsPage() {
       contact_phone: j.contact_phone || '+994',
       contact_link: j.contact_link || '',
       description: j.description || '',
+      location_lat: j.location_lat || '',
+      location_lng: j.location_lng || '',
       notify_radius_m: j.notify_radius_m || '',
       location_address: j.location_address || '',
       company_name: j.company_name || '',
@@ -192,6 +194,8 @@ export default function JobsPage() {
         description: selected.description || '',
         is_daily: !!selected.is_daily,
         notify_radius_m: selected.notify_radius_m ? Number(selected.notify_radius_m) : null,
+        location_lat: selected.location_lat ? Number(selected.location_lat) : null,
+        location_lng: selected.location_lng ? Number(selected.location_lng) : null,
         location_address: selected.location_address || null,
         company_name: selected.company_name || null,
       }
@@ -367,6 +371,29 @@ export default function JobsPage() {
           <div className="formRow">
             <div className="label">Link</div>
             <input className="input" value={selected?.contact_link || ''} onChange={(e) => setSelected({ ...selected, contact_link: e.target.value })} />
+          </div>
+
+          <div className="formRow" style={{ gridColumn: 'span 2' }}>
+            <div className="label">Lokasiya (xəritədən seç)</div>
+            <AdminMapPicker
+              lat={selected?.location_lat ? Number(selected.location_lat) : null}
+              lng={selected?.location_lng ? Number(selected.location_lng) : null}
+              onChange={({ lat, lng, address }) => setSelected((p) => ({
+                ...p,
+                location_lat: String(lat),
+                location_lng: String(lng),
+                location_address: (p.location_address || '').trim() ? p.location_address : (address || ''),
+              }))}
+            />
+          </div>
+
+          <div className="formRow">
+            <div className="label">Lokasiya lat</div>
+            <input className="input" value={selected?.location_lat || ''} onChange={(e) => setSelected({ ...selected, location_lat: e.target.value })} />
+          </div>
+          <div className="formRow">
+            <div className="label">Lokasiya lng</div>
+            <input className="input" value={selected?.location_lng || ''} onChange={(e) => setSelected({ ...selected, location_lng: e.target.value })} />
           </div>
 
           <div className="formRow" style={{ gridColumn: 'span 2' }}>
