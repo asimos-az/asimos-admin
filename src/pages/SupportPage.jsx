@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import { api } from '../lib/api'
+import toast from 'react-hot-toast'
 import { MessageSquare, User, Search, Send, CheckCircle, XCircle, Trash2 } from 'lucide-react'
 
 export default function SupportPage() {
@@ -48,7 +49,7 @@ export default function SupportPage() {
             const res = await api.get(`/admin/support/${t.id}?_t=${Date.now()}`)
             setSelectedTicket(res.data)
         } catch (e) {
-            if (!silent) alert(e.message)
+            if (!silent) toast.error(e.message)
         }
     }
 
@@ -64,8 +65,9 @@ export default function SupportPage() {
             await selectTicket(selectedTicket)
             // refresh list (status might change)
             loadList()
+            toast.success('Cavab gönderildi')
         } catch (e) {
-            alert(e.message)
+            toast.error(e.message)
         } finally {
             setReplying(false)
         }
@@ -76,10 +78,11 @@ export default function SupportPage() {
         try {
             setLoading(true)
             await api.delete(`/admin/support/${selectedTicket.id}`)
+            toast.success('Müraciət silindi')
             setSelectedTicket(null)
             loadList()
         } catch (e) {
-            alert(e.message)
+            toast.error(e.message)
         } finally {
             setLoading(false)
         }

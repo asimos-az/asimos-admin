@@ -4,6 +4,7 @@ import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
 import AdminMapPicker from '../components/AdminMapPicker.jsx'
 import { api } from '../lib/api'
+import toast from 'react-hot-toast'
 
 export default function JobsPage() {
   const navigate = useNavigate()
@@ -89,9 +90,9 @@ export default function JobsPage() {
   }
 
   const createJob = async () => {
-    if (!createForm.title.trim()) return alert('Başlıq boş ola bilməz')
-    if (!createForm.created_by) return alert('Elanı hansı işçi axtaran (employer) adına yaratmaq lazımdır?')
-    if (!createForm.location_lat || !createForm.location_lng) return alert('Lokasiya seçilməlidir (xəritədən seçin)')
+    if (!createForm.title.trim()) return toast.error('Başlıq boş ola bilməz')
+    if (!createForm.created_by) return toast.error('Elanı hansı işçi axtaran (employer) adına yaratmaq lazımdır?')
+    if (!createForm.location_lat || !createForm.location_lng) return toast.error('Lokasiya seçilməlidir (xəritədən seçin)')
     setSaving(true)
     try {
       const payload = {
@@ -116,10 +117,11 @@ export default function JobsPage() {
         status: 'open',
       }
       await api.post('/admin/jobs', payload)
+      toast.success('Elan yaradıldı')
       setCreating(false)
       await load()
     } catch (e) {
-      alert(e?.response?.data?.error || e.message || 'Elan yaratmaq alınmadı')
+      toast.error(e?.response?.data?.error || e.message || 'Elan yaratmaq alınmadı')
     } finally {
       setSaving(false)
     }
@@ -145,7 +147,7 @@ export default function JobsPage() {
   const createEmployer = async () => {
     try {
       if (!employerForm.full_name || !employerForm.email || !employerForm.password) {
-        alert('Ad, Email və Şifrə mütləqdir')
+        toast.error('Ad, Email və Şifrə mütləqdir')
         return
       }
       // Use the same register endpoint as mobile (role=employer)
@@ -163,9 +165,10 @@ export default function JobsPage() {
       if (newId) {
         setCreateForm((p) => ({ ...p, created_by: newId }))
       }
+      toast.success('Employer yaradıldı')
       setCreatingEmployer(false)
     } catch (e) {
-      alert(e?.response?.data?.error || e.message || 'Employer yaratmaq alınmadı')
+      toast.error(e?.response?.data?.error || e.message || 'Employer yaratmaq alınmadı')
     }
   }
 
@@ -215,10 +218,11 @@ export default function JobsPage() {
         working_hours: selected.working_hours || null,
       }
       await api.patch(`/admin/jobs/${selected.id}`, patch)
+      toast.success('Elan yeniləndi')
       setSelected(null)
       await load()
     } catch (e) {
-      alert(e?.response?.data?.error || e.message || 'Yadda saxlamaq alınmadı')
+      toast.error(e?.response?.data?.error || e.message || 'Yadda saxlamaq alınmadı')
     } finally {
       setSaving(false)
     }
@@ -228,9 +232,10 @@ export default function JobsPage() {
     if (!confirm('Bu elanı silmək istəyirsiniz?')) return
     try {
       await api.delete(`/admin/jobs/${jobId}`)
+      toast.success('Elan silindi')
       await load()
     } catch (e) {
-      alert(e?.response?.data?.error || e.message || 'Silmək alınmadı')
+      toast.error(e?.response?.data?.error || e.message || 'Silmək alınmadı')
     }
   }
 
@@ -240,9 +245,10 @@ export default function JobsPage() {
     setSaving(true)
     try {
       await api.patch(`/admin/jobs/${id}`, { status: 'open' })
+      toast.success('Elan təsdiqləndi')
       await load()
     } catch (e) {
-      alert(e?.response?.data?.error || e.message || 'Xəta baş verdi')
+      toast.error(e?.response?.data?.error || e.message || 'Xəta baş verdi')
     } finally {
       setSaving(false)
     }

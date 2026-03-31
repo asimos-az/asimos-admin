@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import Layout from '../components/Layout.jsx'
 import { api } from '../lib/api'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -52,9 +53,10 @@ export default function JobDetailPage() {
         setProcessing(true)
         try {
             await api.patch(`/admin/jobs/${id}`, { status: newStatus })
+            toast.success('Status yeniləndi')
             await load()
         } catch (e) {
-            alert(e?.response?.data?.error || e.message)
+            toast.error(e?.response?.data?.error || e.message)
         } finally {
             setProcessing(false)
         }
@@ -65,9 +67,10 @@ export default function JobDetailPage() {
         setProcessing(true)
         try {
             await api.delete(`/admin/jobs/${id}`)
+            toast.success('Elan silindi')
             navigate('/jobs')
         } catch (e) {
-            alert(e?.response?.data?.error || e.message)
+            toast.error(e?.response?.data?.error || e.message)
             setProcessing(false)
         }
     }
@@ -275,11 +278,12 @@ export default function JobDetailPage() {
                                             status: 'rejected',
                                             rejection_reason: rejectionReason 
                                         })
+                                        toast.success('Elan rədd edildi')
                                         setRejectionModalOpen(false)
                                         setRejectionReason('')
                                         await load()
                                     } catch (e) {
-                                        alert(e?.response?.data?.error || e.message)
+                                        toast.error(e?.response?.data?.error || e.message)
                                     } finally {
                                         setProcessing(false)
                                     }

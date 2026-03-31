@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
 import { api } from '../lib/api'
+import toast from 'react-hot-toast'
 
 function toInt(v, fallback = 0) {
   const n = Number(v)
@@ -68,7 +69,7 @@ export default function CategoriesPage(){
   const save = async () => {
     if (!editing) return
     if (!editing.name?.trim()) {
-      alert('Kateqoriya adı vacibdir.')
+      toast.error('Kateqoriya adı vacibdir.')
       return
     }
     setSaving(true)
@@ -86,9 +87,10 @@ export default function CategoriesPage(){
         await api.post('/admin/categories', payload)
       }
       close()
+      toast.success(editing.id ? 'Kateqoriya yeniləndi' : 'Kateqoriya yaradıldı')
       await load()
     } catch (e) {
-      alert(e?.response?.data?.error || e.message || 'Yadda saxlamaq alınmadı')
+      toast.error(e?.response?.data?.error || e.message || 'Yadda saxlamaq alınmadı')
     } finally {
       setSaving(false)
     }
@@ -98,9 +100,10 @@ export default function CategoriesPage(){
     if (!confirm('Bu kateqoriyanı silmək istəyirsiniz?')) return
     try {
       await api.delete(`/admin/categories/${id}`)
+      toast.success('Kateqoriya silindi')
       await load()
     } catch (e) {
-      alert(e?.response?.data?.error || e.message || 'Silmək alınmadı')
+      toast.error(e?.response?.data?.error || e.message || 'Silmək alınmadı')
     }
   }
 
