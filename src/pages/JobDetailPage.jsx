@@ -91,8 +91,15 @@ export default function JobDetailPage() {
                             {job.status === 'pending' && <span className="pill warn">Gözləyir</span>}
                             {job.status === 'open' && <span className="pill good">Aktiv</span>}
                             {job.status === 'closed' && <span className="pill">Bağlı</span>}
+                            {job.status === 'rejected' && <span className="pill bad">Rədd edilmiş</span>}
                         </div>
                     </div>
+
+                    {job.status === 'rejected' && job.rejectionReason && (
+                        <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#B91C1C' }}>
+                            <strong>Rədd səbəbi:</strong> {job.rejectionReason}
+                        </div>
+                    )}
 
                     <table className="table" style={{ marginTop: 0 }}>
                         <tbody>
@@ -159,7 +166,33 @@ export default function JobDetailPage() {
                         <h3 style={{ fontSize: 16, marginBottom: 12 }}>Əməliyyatlar</h3>
                         <div className="row" style={{ gap: 12 }}>
                             {job.status === 'pending' && (
-                                <button className="btn good" onClick={() => updateStatus('open')} disabled={processing}>✅ Təsdiqlə</button>
+                                <>
+                                    <button className="btn good" onClick={() => updateStatus('open')} disabled={processing}>✅ Təsdiqlə</button>
+                                    <button 
+                                        className="btn danger" 
+                                        onClick={async () => {
+                                            const reason = prompt('Rədd etmə səbəbini yazın:')
+                                            if (reason === null) return // Cancelled
+                                            if (!reason.trim()) return alert('Səbəb yazılmalıdır')
+                                            
+                                            setProcessing(true)
+                                            try {
+                                                await api.patch(`/admin/jobs/${id}`, { 
+                                                    status: 'rejected',
+                                                    rejection_reason: reason 
+                                                })
+                                                await load()
+                                            } catch (e) {
+                                                alert(e?.response?.data?.error || e.message)
+                                            } finally {
+                                                setProcessing(false)
+                                            }
+                                        }} 
+                                        disabled={processing}
+                                    >
+                                        ❌ Rədd et
+                                    </button>
+                                </>
                             )}
                             {job.status === 'open' && (
                                 <button className="btn" onClick={() => updateStatus('closed')} disabled={processing}>🚫 Bağla</button>
@@ -167,7 +200,10 @@ export default function JobDetailPage() {
                             {job.status === 'closed' && (
                                 <button className="btn" onClick={() => updateStatus('open')} disabled={processing}>🔄 Yenidən aç</button>
                             )}
-                            <button className="btn danger" onClick={del} disabled={processing}>🗑 Sil</button>
+                            {job.status === 'rejected' && (
+                                <button className="btn good" onClick={() => updateStatus('open')} disabled={processing}>✅ Təsdiqlə (Yenidən)</button>
+                            )}
+                            <button className="btn danger outline" onClick={del} disabled={processing}>🗑 Sil</button>
                         </div>
                     </div>
                 </div>
