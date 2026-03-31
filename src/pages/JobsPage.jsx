@@ -27,6 +27,7 @@ export default function JobsPage() {
     location_lat: '',
     location_lng: '',
     location_address: '',
+    company_name: '',
   })
   const [employers, setEmployers] = useState([])
   const [categories, setCategories] = useState([])
@@ -76,6 +77,7 @@ export default function JobsPage() {
       location_lat: '',
       location_lng: '',
       location_address: '',
+      company_name: '',
     })
     setCreating(true)
   }
@@ -101,6 +103,7 @@ export default function JobsPage() {
         location_lat: createForm.location_lat ? Number(createForm.location_lat) : null,
         location_lng: createForm.location_lng ? Number(createForm.location_lng) : null,
         location_address: createForm.location_address || null,
+        company_name: createForm.company_name || null,
         status: 'open',
       }
       await api.post('/admin/jobs', payload)
@@ -170,6 +173,7 @@ export default function JobsPage() {
       description: j.description || '',
       notify_radius_m: j.notify_radius_m || '',
       location_address: j.location_address || '',
+      company_name: j.company_name || '',
     })
   }
 
@@ -189,6 +193,7 @@ export default function JobsPage() {
         is_daily: !!selected.is_daily,
         notify_radius_m: selected.notify_radius_m ? Number(selected.notify_radius_m) : null,
         location_address: selected.location_address || null,
+        company_name: selected.company_name || null,
       }
       await api.patch(`/admin/jobs/${selected.id}`, patch)
       setSelected(null)
@@ -249,6 +254,7 @@ export default function JobsPage() {
                 <th>Başlıq</th>
                 <th>Kateqoriya</th>
                 <th>Maaş</th>
+                <th>Şirkət</th>
                 <th>Yaradan</th>
                 <th>Tarix</th>
                 <th style={{ width: 160 }}>Əməliyyatlar</th>
@@ -265,6 +271,7 @@ export default function JobsPage() {
                   <td style={{ fontWeight: 700 }}>{j.title}</td>
                   <td className="muted">{j.category || '-'}</td>
                   <td className="muted">{j.wage || '-'}</td>
+                  <td className="muted">{j.company_name || '-'}</td>
                   <td className="mono">{j.created_by}</td>
                   <td className="muted">{new Date(j.created_at).toLocaleString('az-AZ')}</td>
                   <td>
@@ -322,7 +329,14 @@ export default function JobsPage() {
           </div>
           <div className="formRow">
             <div className="label">Kateqoriya</div>
-            <input className="input" value={selected?.category || ''} onChange={(e) => setSelected({ ...selected, category: e.target.value })} />
+            <select className="select" value={selected?.category || ''} onChange={(e) => setSelected({ ...selected, category: e.target.value })}>
+              <option value="">Seçin…</option>
+              {(categories || []).map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div className="formRow">
+            <div className="label">Şirkət adı</div>
+            <input className="input" value={selected?.company_name || ''} onChange={(e) => setSelected({ ...selected, company_name: e.target.value })} />
           </div>
 
           <div className="formRow">
@@ -403,6 +417,10 @@ export default function JobsPage() {
               <option value="">Seçin…</option>
               {(categories || []).map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
+          </div>
+          <div className="formRow">
+            <div className="label">Şirkət adı</div>
+            <input className="input" value={createForm.company_name} onChange={(e) => setCreateForm({ ...createForm, company_name: e.target.value })} />
           </div>
           <div className="formRow">
             <div className="label">Maaş</div>
