@@ -16,6 +16,7 @@ export default function UsersPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmAction, setConfirmAction] = useState(null) // { type: 'delete' | 'approve', id: string, title: string }
   const [processing, setProcessing] = useState(false)
+  const [deletionReason, setDeletionReason] = useState('')
 
   const toast = useToast()
 
@@ -50,8 +51,9 @@ export default function UsersPage() {
       type: 'delete',
       id: u.id,
       title: 'İstifadəçini sil',
-      message: `"${u.full_name || u.email}" istifadəçisini silmək istəyirsiniz? Bu əməl geri qaytarıla bilməz.`
+      message: `"${u.full_name || u.email}" istifadəçisini silmək istəyirsiniz? Səbəbi aşağıda qeyd edin:`
     })
+    setDeletionReason('')
     setConfirmOpen(true)
   }
 
@@ -63,7 +65,12 @@ export default function UsersPage() {
         await api.patch(`/admin/users/${confirmAction.id}`, { status: 'active' })
         toast.success("İstifadəçi uğurla təsdiqləndi")
       } else if (confirmAction.type === 'delete') {
-        await api.delete(`/admin/users/${confirmAction.id}`)
+        if (!deletionReason.trim()) {
+           toast.error("Silinmə səbəbi mütləqdir");
+           setProcessing(false);
+           return;
+        }
+        await api.delete(`/admin/users/${confirmAction.id}`, { data: { reason: deletionReason } })
         toast.success("İstifadəçi uğurla silindi")
       }
       setConfirmOpen(false)
@@ -167,13 +174,23 @@ export default function UsersPage() {
           </>
         }
       >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '20px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '10px 0' }}>
           <div style={{ width: 60, height: 60, borderRadius: '50%', background: confirmAction?.type === 'delete' ? 'rgba(255, 0, 0, 0.1)' : 'rgba(16, 185, 129, 0.1)', display: 'grid', placeItems: 'center', marginBottom: 16 }}>
             <AlertTriangle size={32} color={confirmAction?.type === 'delete' ? '#ef4444' : '#10b981'} />
           </div>
-          <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--text)', margin: 0 }}>
+          <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--text)', marginBottom: 12 }}>
             {confirmAction?.message}
           </p>
+
+          {confirmAction?.type === 'delete' && (
+            <textarea
+              className="input"
+              placeholder="Silinmə səbəbini bura qeyd edin..."
+              style={{ width: '100%', minHeight: 80, resize: 'vertical' }}
+              value={deletionReason}
+              onChange={(e) => setDeletionReason(e.target.value)}
+            />
+          )}
         </div>
       </Modal>
 
