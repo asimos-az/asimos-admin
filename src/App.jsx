@@ -19,7 +19,82 @@ export default function App() {
       <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-...
+
+        <Route
+          path="/"
+          element={
+            <RequireAuth>
+              <DashboardPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <RequireAuth>
+              <UsersPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/jobs"
+          element={
+            <RequireAuth>
+              <JobsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/jobs/:id"
+          element={
+            <RequireAuth>
+              <JobDetailPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/events"
+          element={
+            <RequireAuth>
+              <EventsPage />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/categories"
+          element={
+            <RequireAuth>
+              <CategoriesPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/map"
+          element={
+            <RequireAuth>
+              <MapPage />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/content"
+          element={
+            <RequireAuth>
+              <ContentPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/support"
+          element={
+            <RequireAuth>
+              <SupportPage />
+            </RequireAuth>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
