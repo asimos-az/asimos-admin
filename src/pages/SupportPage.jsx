@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import { api } from '../lib/api'
-import { MessageSquare, User, Search, Send, CheckCircle, XCircle } from 'lucide-react'
+import { MessageSquare, User, Search, Send, CheckCircle, XCircle, Trash2 } from 'lucide-react'
 
 export default function SupportPage() {
     const [tickets, setTickets] = useState([])
@@ -68,6 +68,20 @@ export default function SupportPage() {
             alert(e.message)
         } finally {
             setReplying(false)
+        }
+    }
+
+    async function deleteTicket() {
+        if (!selectedTicket || !window.confirm('Bu müraciəti silmək istədiyinizə əminsiniz?')) return
+        try {
+            setLoading(true)
+            await api.delete(`/admin/support/${selectedTicket.id}`)
+            setSelectedTicket(null)
+            loadList()
+        } catch (e) {
+            alert(e.message)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -144,8 +158,17 @@ export default function SupportPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className={`pill ${selectedTicket.status === 'open' ? 'good' : 'warn'}`}>
-                                    {selectedTicket.status}
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                    <div className={`pill ${selectedTicket.status === 'open' ? 'good' : 'warn'}`}>
+                                        {selectedTicket.status}
+                                    </div>
+                                    <button 
+                                        className="btn outline" 
+                                        style={{ color: 'var(--error)', borderColor: 'var(--error)', padding: '4px 12px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        onClick={deleteTicket}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
                             </div>
 
