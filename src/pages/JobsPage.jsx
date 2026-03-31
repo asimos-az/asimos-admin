@@ -28,6 +28,9 @@ export default function JobsPage() {
     location_lng: '',
     location_address: '',
     company_name: '',
+    duration_days: '',
+    starts_at: '',
+    working_hours: '',
   })
   const [employers, setEmployers] = useState([])
   const [categories, setCategories] = useState([])
@@ -78,6 +81,9 @@ export default function JobsPage() {
       location_lng: '',
       location_address: '',
       company_name: '',
+      duration_days: '1',
+      starts_at: new Date().toISOString().split('T')[0],
+      working_hours: '',
     })
     setCreating(true)
   }
@@ -104,6 +110,9 @@ export default function JobsPage() {
         location_lng: createForm.location_lng ? Number(createForm.location_lng) : null,
         location_address: createForm.location_address || null,
         company_name: createForm.company_name || null,
+        duration_days: createForm.duration_days ? Number(createForm.duration_days) : null,
+        starts_at: createForm.starts_at || null,
+        working_hours: createForm.working_hours || null,
         status: 'open',
       }
       await api.post('/admin/jobs', payload)
@@ -176,6 +185,9 @@ export default function JobsPage() {
       notify_radius_m: j.notify_radius_m || '',
       location_address: j.location_address || '',
       company_name: j.company_name || '',
+      duration_days: j.duration_days || '',
+      starts_at: j.starts_at ? new Date(j.starts_at).toISOString().split('T')[0] : '',
+      working_hours: j.working_hours || '',
     })
   }
 
@@ -198,6 +210,9 @@ export default function JobsPage() {
         location_lng: selected.location_lng ? Number(selected.location_lng) : null,
         location_address: selected.location_address || null,
         company_name: selected.company_name || null,
+        duration_days: selected.duration_days ? Number(selected.duration_days) : null,
+        starts_at: selected.starts_at || null,
+        working_hours: selected.working_hours || null,
       }
       await api.patch(`/admin/jobs/${selected.id}`, patch)
       setSelected(null)
@@ -350,6 +365,24 @@ export default function JobsPage() {
               <option value="true">Bəli</option>
             </select>
           </div>
+
+          {selected?.is_daily && (
+            <>
+              <div className="formRow">
+                <div className="label">Gün sayı</div>
+                <input className="input" type="number" value={selected?.duration_days || ''} onChange={(e) => setSelected({ ...selected, duration_days: e.target.value })} />
+              </div>
+              <div className="formRow">
+                <div className="label">Başlama tarixi</div>
+                <input className="input" type="date" value={selected?.starts_at || ''} onChange={(e) => setSelected({ ...selected, starts_at: e.target.value })} />
+              </div>
+              <div className="formRow">
+                <div className="label">İş saatları</div>
+                <input className="input" placeholder="məs: 09:00 - 18:00" value={selected?.working_hours || ''} onChange={(e) => setSelected({ ...selected, working_hours: e.target.value })} />
+              </div>
+            </>
+          )}
+
           <div className="formRow">
             <div className="label">Bildiriş radiusu (m)</div>
             <input className="input" value={selected?.notify_radius_m || ''} onChange={(e) => setSelected({ ...selected, notify_radius_m: e.target.value })} />
@@ -473,6 +506,23 @@ export default function JobsPage() {
               <option value="true">Bəli</option>
             </select>
           </div>
+
+          {createForm.is_daily && (
+            <>
+              <div className="formRow">
+                <div className="label">Gün sayı</div>
+                <input className="input" type="number" value={createForm.duration_days} onChange={(e) => setCreateForm({ ...createForm, duration_days: e.target.value })} />
+              </div>
+              <div className="formRow">
+                <div className="label">Başlama tarixi</div>
+                <input className="input" type="date" value={createForm.starts_at} onChange={(e) => setCreateForm({ ...createForm, starts_at: e.target.value })} />
+              </div>
+              <div className="formRow">
+                <div className="label">İş saatları</div>
+                <input className="input" placeholder="məs: 09:00 - 18:00" value={createForm.working_hours} onChange={(e) => setCreateForm({ ...createForm, working_hours: e.target.value })} />
+              </div>
+            </>
+          )}
 
           <div className="formRow">
             <div className="label">Bildiriş radiusu (m)</div>
