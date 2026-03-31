@@ -25,6 +25,8 @@ export default function JobDetailPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const [processing, setProcessing] = useState(false)
+    const [rejectionModalOpen, setRejectionModalOpen] = useState(false)
+    const [rejectionReason, setRejectionReason] = useState('')
 
     useEffect(() => {
         load()
@@ -170,32 +172,12 @@ export default function JobDetailPage() {
                                     <button className="btn good" onClick={() => updateStatus('open')} disabled={processing}>✅ Təsdiqlə</button>
                                     <button 
                                         className="btn danger" 
-                                        onClick={async () => {
-                                            const reason = prompt('Rədd etmə səbəbini yazın:')
-                                            if (reason === null) return // Cancelled
-                                            if (!reason.trim()) return alert('Səbəb yazılmalıdır')
-                                            
-                                            setProcessing(true)
-                                            try {
-                                                await api.patch(`/admin/jobs/${id}`, { 
-                                                    status: 'rejected',
-                                                    rejection_reason: reason 
-                                                })
-                                                await load()
-                                            } catch (e) {
-                                                alert(e?.response?.data?.error || e.message)
-                                            } finally {
-                                                setProcessing(false)
-                                            }
-                                        }} 
+                                        onClick={() => setRejectionModalOpen(true)} 
                                         disabled={processing}
                                     >
                                         ❌ Rədd et
                                     </button>
                                 </>
-                            )}
-                            {job.status === 'open' && (
-                                <button className="btn" onClick={() => updateStatus('closed')} disabled={processing}>🚫 Bağla</button>
                             )}
                             {job.status === 'closed' && (
                                 <button className="btn" onClick={() => updateStatus('open')} disabled={processing}>🔄 Yenidən aç</button>
@@ -245,6 +227,70 @@ export default function JobDetailPage() {
                 </div>
 
             </div>
+
+            {rejectionModalOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div className="card" style={{ width: '100%', maxWidth: 400, padding: 24 }}>
+                        <h3 style={{ marginTop: 0 }}>Elanı rədd et</h3>
+                        <p className="muted" style={{ fontSize: 14 }}>Xahiş olunur rədd etmə səbəbini qeyd edin. Bu səbəb işəgötürənə bildiriş olaraq göndəriləcək.</p>
+                        
+                        <textarea
+                            style={{
+                                width: '100%',
+                                minHeight: 100,
+                                padding: 12,
+                                borderRadius: 8,
+                                border: '1px solid var(--stroke)',
+                                marginBottom: 16,
+                                outline: 'none'
+                            }}
+                            placeholder="Səbəb..."
+                            value={rejectionReason}
+                            onChange={(e) => setRejectionReason(e.target.value)}
+                        />
+
+                        <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+                            <button className="btn ghost" onClick={() => {
+                                setRejectionModalOpen(false)
+                                setRejectionReason('')
+                            }}>Ləğv et</button>
+                            <button 
+                                className="btn danger" 
+                                disabled={processing || !rejectionReason.trim()}
+                                onClick={async () => {
+                                    setProcessing(true)
+                                    try {
+                                        await api.patch(`/admin/jobs/${id}`, { 
+                                            status: 'rejected',
+                                            rejection_reason: rejectionReason 
+                                        })
+                                        setRejectionModalOpen(false)
+                                        setRejectionReason('')
+                                        await load()
+                                    } catch (e) {
+                                        alert(e?.response?.data?.error || e.message)
+                                    } finally {
+                                        setProcessing(false)
+                                    }
+                                }}
+                            >
+                                {processing ? 'Gözləyin...' : 'Rədd et'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </Layout>
     )
 }
