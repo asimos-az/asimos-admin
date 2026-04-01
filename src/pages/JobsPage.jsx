@@ -6,6 +6,16 @@ import AdminMapPicker from '../components/AdminMapPicker.jsx'
 import { api } from '../lib/api'
 import toast from 'react-hot-toast'
 
+const formatRadius = (m) => {
+  const num = Number(m);
+  if (!num || isNaN(num) || num <= 0) return "";
+  if (num >= 1000) {
+    const km = num / 1000;
+    return `${Number.isInteger(km) ? km : km.toFixed(1)} km`;
+  }
+  return `${num} m`;
+};
+
 export default function JobsPage() {
   const navigate = useNavigate()
   const [q, setQ] = useState('')
@@ -390,9 +400,9 @@ export default function JobsPage() {
           )}
 
           <div className="formRow">
-            <div className="label">Bildiriş radiusu (m)</div>
-            <input className="input" value={selected?.notify_radius_m || ''} onChange={(e) => setSelected({ ...selected, notify_radius_m: e.target.value })} />
-            <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Daxil edilən rəqəm metr ilə hesablanır (məs: 500 = 500 metr).</div>
+            <div className="label">Bildiriş radiusu (m) {selected?.notify_radius_m ? <span className="pill good" style={{ marginLeft: 8, padding: '2px 8px' }}>{formatRadius(selected.notify_radius_m)}</span> : null}</div>
+            <input className="input" type="number" value={selected?.notify_radius_m || ''} onChange={(e) => setSelected({ ...selected, notify_radius_m: e.target.value })} />
+            <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Daxil edilən rəqəm metr ilə hesablanır (məs: 500 = 500 metr, 1500 = 1.5 km).</div>
           </div>
 
           <div className="formRow">
@@ -531,9 +541,9 @@ export default function JobsPage() {
           )}
 
           <div className="formRow">
-            <div className="label">Bildiriş radiusu (m)</div>
-            <input className="input" value={createForm.notify_radius_m} onChange={(e) => setCreateForm({ ...createForm, notify_radius_m: e.target.value })} />
-            <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Daxil edilən rəqəm metr ilə hesablanır (məs: 500 = 500 metr).</div>
+            <div className="label">Bildiriş radiusu (m) {createForm.notify_radius_m ? <span className="pill good" style={{ marginLeft: 8, padding: '2px 8px' }}>{formatRadius(createForm.notify_radius_m)}</span> : null}</div>
+            <input className="input" type="number" value={createForm.notify_radius_m} onChange={(e) => setCreateForm({ ...createForm, notify_radius_m: e.target.value })} />
+            <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Daxil edilən rəqəm metr ilə hesablanır (məs: 500 = 500 metr, 1500 = 1.5 km).</div>
           </div>
           <div className="formRow" />
 
