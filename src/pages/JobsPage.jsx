@@ -42,6 +42,7 @@ export default function JobsPage() {
     duration_days: '',
     starts_at: '',
     working_hours: '',
+    published_at: '',
   })
   const [employers, setEmployers] = useState([])
   const [categories, setCategories] = useState([])
@@ -95,6 +96,7 @@ export default function JobsPage() {
       duration_days: '1',
       starts_at: new Date().toISOString().split('T')[0],
       working_hours: '',
+      published_at: '',
     })
     setCreating(true)
   }
@@ -124,6 +126,7 @@ export default function JobsPage() {
         duration_days: createForm.duration_days ? Number(createForm.duration_days) : null,
         starts_at: createForm.starts_at || null,
         working_hours: createForm.working_hours || null,
+        published_at: createForm.published_at || null,
         status: 'open',
       }
       await api.post('/admin/jobs', payload)
@@ -201,6 +204,7 @@ export default function JobsPage() {
       duration_days: j.duration_days || '',
       starts_at: j.starts_at ? new Date(j.starts_at).toISOString().split('T')[0] : '',
       working_hours: j.working_hours || '',
+      published_at: j.published_at ? new Date(j.published_at).toISOString().slice(0, 16) : '',
     })
   }
 
@@ -226,6 +230,7 @@ export default function JobsPage() {
         duration_days: selected.duration_days ? Number(selected.duration_days) : null,
         starts_at: selected.starts_at || null,
         working_hours: selected.working_hours || null,
+        published_at: selected.published_at || null,
       }
       await api.patch(`/admin/jobs/${selected.id}`, patch)
       toast.success('Elan yeniləndi')
@@ -404,6 +409,10 @@ export default function JobsPage() {
             <input className="input" type="number" value={selected?.notify_radius_m || ''} onChange={(e) => setSelected({ ...selected, notify_radius_m: e.target.value })} />
             <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Daxil edilən rəqəm metr ilə hesablanır (məs: 500 = 500 metr, 1500 = 1.5 km).</div>
           </div>
+          <div className="formRow">
+            <div className="label">Paylaşılma Tarixi (Boşdursa indi)</div>
+            <input className="input" type="datetime-local" value={selected?.published_at || ''} onChange={(e) => setSelected({ ...selected, published_at: e.target.value })} />
+          </div>
 
           <div className="formRow">
             <div className="label">Maaş</div>
@@ -544,6 +553,10 @@ export default function JobsPage() {
             <div className="label">Bildiriş radiusu (m) {createForm.notify_radius_m ? <span className="pill good" style={{ marginLeft: 8, padding: '2px 8px' }}>{formatRadius(createForm.notify_radius_m)}</span> : null}</div>
             <input className="input" type="number" value={createForm.notify_radius_m} onChange={(e) => setCreateForm({ ...createForm, notify_radius_m: e.target.value })} />
             <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Daxil edilən rəqəm metr ilə hesablanır (məs: 500 = 500 metr, 1500 = 1.5 km).</div>
+          </div>
+          <div className="formRow">
+            <div className="label">Paylaşılma Tarixi (Boşdursa indi)</div>
+            <input className="input" type="datetime-local" value={createForm.published_at} onChange={(e) => setCreateForm({ ...createForm, published_at: e.target.value })} />
           </div>
           <div className="formRow" />
 
