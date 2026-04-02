@@ -15,6 +15,8 @@ function TypeBadge({ type }) {
   if (type === 'location_update') { color = 'purple'; icon = <MapPin size={12} />; label = 'Lokasiya' }
   if (type === 'push_token_saved') { color = 'orange'; icon = <Bell size={12} />; label = 'Push Token' }
   if (type === 'admin_job_created') { color = 'indigo'; icon = <FileText size={12} />; label = 'Elan (Admin)' }
+  if (type === 'user_self_deleted') { color = 'red'; icon = <User size={12} />; label = 'Hesab Silindi (Öz)' }
+  if (type === 'admin_user_deleted') { color = 'red'; icon = <Lock size={12} />; label = 'Hesab Silindi (Admin)' }
 
   const style = {
     display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -86,6 +88,33 @@ function ProcessDetail({ type, data }) {
         <ArrowRight size={12} className="muted" />
         <span className="muted">By:</span>
         <span className="mono" style={{ fontSize: 12 }}>{d.created_by?.substring(0, 8)}</span>
+      </div>
+    )
+  }
+
+  if (type === 'user_self_deleted') {
+    return (
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+        <span style={{ fontWeight: 700, color: '#b91c1c' }}>{d.fullName}</span>
+        <span className="muted">({d.email})</span>
+        <ArrowRight size={12} className="muted" />
+        <span className="pill" style={{ fontSize: 10 }}>{d.role}</span>
+        <div style={{ width: '100%', fontSize: 13, marginTop: 4 }}>
+          <span className="muted">Səbəb: </span>
+          <span style={{ fontStyle: 'italic' }}>{d.reason}</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (type === 'admin_user_deleted') {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span className="muted">Hədəf ID:</span>
+        <span className="mono" style={{ fontSize: 12 }}>{d.target_user_id?.substring(0, 8)}</span>
+        <ArrowRight size={12} className="muted" />
+        <span className="muted">Səbəb:</span>
+        <span>{d.reason}</span>
       </div>
     )
   }
