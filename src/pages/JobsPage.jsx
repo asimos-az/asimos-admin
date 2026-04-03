@@ -306,7 +306,8 @@ export default function JobsPage() {
                   <td>
                     {j.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
                       j.status === 'closed' ? <span className="pill">Bağlı</span> :
-                        <span className="pill good">Aktiv</span>}
+                        (j.published_at && new Date(j.published_at) > new Date()) ? <span className="pill info">Planlaşdırılıb</span> :
+                          <span className="pill good">Aktiv</span>}
                   </td>
                   <td style={{ fontWeight: 700 }}>{j.title}</td>
                   <td className="muted">{j.category || '-'}</td>
