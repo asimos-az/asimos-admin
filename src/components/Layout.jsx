@@ -13,8 +13,11 @@ import {
   X,
   FileText,
   MessageSquare,
+  Bell,
 } from 'lucide-react'
 import { clearToken } from '../lib/auth'
+import { api } from '../lib/api'
+import toast from 'react-hot-toast'
 
 function NavItem({ to, icon: Icon, label, onClick }) {
   return (
@@ -34,6 +37,20 @@ export default function Layout({ title, children, subtitle }) {
   const nav = useNavigate()
   const loc = useLocation()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    loadUnreadCount()
+    const int = setInterval(loadUnreadCount, 30000)
+    return () => clearInterval(int)
+  }, [])
+
+  const loadUnreadCount = async () => {
+    try {
+      const { data } = await api.get('/me/notifications/unread-count')
+      setUnreadCount(data?.unread || 0)
+    } catch (e) {}
+  }
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://asimos-backend.onrender.com'
 
@@ -121,6 +138,33 @@ export default function Layout({ title, children, subtitle }) {
           </div>
 
           <div className="topbarRight">
+            <div 
+              className="iconBtn" 
+              onClick={() => nav('/notifications')}
+              style={{ position: 'relative', cursor: 'pointer', marginRight: 10 }}
+            >
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: -2,
+                  right: -2,
+                  background: '#ef4444',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: 16,
+                  height: 16,
+                  fontSize: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 700,
+                  border: '2px solid white'
+                }}>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </div>
             <div className="search">
               <Search size={16} />
               <input placeholder="Axtarış (tezliklə)…" disabled />

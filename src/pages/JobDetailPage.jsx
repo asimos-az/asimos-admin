@@ -28,6 +28,8 @@ export default function JobDetailPage() {
     const [processing, setProcessing] = useState(false)
     const [rejectionModalOpen, setRejectionModalOpen] = useState(false)
     const [rejectionReason, setRejectionReason] = useState('')
+    const [ratings, setRatings] = useState([])
+    const [loadingRatings, setLoadingRatings] = useState(false)
 
     useEffect(() => {
         load()
@@ -45,6 +47,19 @@ export default function JobDetailPage() {
             setError(e?.response?.data?.error || e.message || 'Elan tapılmadı')
         } finally {
             setLoading(false)
+            loadRatings()
+        }
+    }
+
+    const loadRatings = async () => {
+        setLoadingRatings(true)
+        try {
+            const { data } = await api.get(`/admin/jobs/${id}/ratings`)
+            setRatings(data || [])
+        } catch (e) {
+            console.error('Error loading ratings:', e)
+        } finally {
+            setLoadingRatings(false)
         }
     }
 
@@ -55,6 +70,7 @@ export default function JobDetailPage() {
             await api.patch(`/admin/jobs/${id}`, { status: newStatus })
             toast.success('Status yeniləndi')
             await load()
+            loadRatings()
         } catch (e) {
             toast.error(e?.response?.data?.error || e.message)
         } finally {
@@ -226,6 +242,30 @@ export default function JobDetailPage() {
                                 Xəritə məlumatı yoxdur
                             </div>
                         )}
+                    </div>
+                </div>
+
+                <div className="card" style={{ gridColumn: 'span 2' }}>
+                    <div className="row" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
+                        <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Rəylər və Şikayətlər ({ratings.length})</h3>
+                        {loadingRatings && <span className="muted" style={{ fontSize: 12 }}>Yüklənir...</span>}
+                    </div>
+
+                    {!loadingRatings && ratings.length === 0 && (
+                        <div className="muted" style={{ padding: '20px 0', textAlign: 'center' }}>Hələ heç bir rəy bildirilməyib.</div>
+                    )}
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
+                        {ratings.map(r => (
+                            <div key={r.id} style={{ padding: 12, border: '1px solid var(--stroke)', borderRadius: 8, background: 'var(--bg1)' }}>
+                                <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
+                                    <div style={{ fontWeight: 600 }}>{r.reviewer?.full_name || 'Adsız'} <span className="muted" style={{ fontSize: 12, fontWeight: 400 }}>({r.reviewer?.email || r.reviewer?.phone || 'Əlaqə yoxdur'})</span></div>
+                                    <div className="pill" style={{ fontSize: 11 }}>{r.score} ulduz</div>
+                                </div>
+                                <div style={{ fontSize: 14, color: 'var(--text2)', marginBottom: 8 }}>{r.comment || 'Şərh yoxdur'}</div>
+                                <div className="muted" style={{ fontSize: 11 }}>{new Date(r.created_at).toLocaleString('az-AZ')}</div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 

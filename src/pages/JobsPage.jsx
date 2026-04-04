@@ -296,8 +296,9 @@ export default function JobsPage() {
                 <th>Maaş</th>
                 <th>Şirkət</th>
                 <th>Yaradan</th>
+                <th>Rəylər</th>
                 <th>Tarix</th>
-                <th style={{ width: 160 }}>Əməliyyatlar</th>
+                <th style={{ width: 220 }}>Əməliyyatlar</th>
               </tr>
             </thead>
             <tbody>
@@ -313,7 +314,14 @@ export default function JobsPage() {
                   <td className="muted">{j.category || '-'}</td>
                   <td className="muted">{j.wage || '-'}</td>
                   <td className="muted">{j.company_name || '-'}</td>
-                  <td className="mono">{j.created_by}</td>
+                  <td className="mono" style={{ fontSize: 10 }}>{j.created_by}</td>
+                  <td>
+                    {j.ratings?.[0]?.count > 0 ? (
+                      <span className="pill bad" style={{ cursor: 'pointer' }} onClick={() => navigate(`/jobs/${j.id}`)}>
+                        {j.ratings[0].count} rəy
+                      </span>
+                    ) : '-'}
+                  </td>
                   <td className="muted">{new Date(j.created_at).toLocaleString('az-AZ')}</td>
                   <td>
                     <div className="row">

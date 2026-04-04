@@ -12,6 +12,7 @@ import CategoriesPage from './pages/CategoriesPage.jsx'
 import MapPage from './pages/MapPage.jsx'
 import ContentPage from './pages/ContentPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
+import NotificationsPage from './pages/NotificationsPage.jsx'
 
 export default function App() {
   return (
@@ -91,6 +92,14 @@ export default function App() {
           element={
             <RequireAuth>
               <SupportPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <RequireAuth>
+              <NotificationsPage />
             </RequireAuth>
           }
         />
