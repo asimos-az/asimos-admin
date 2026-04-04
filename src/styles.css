@@ -1155,3 +1155,40 @@ textarea.input:focus {
     box-shadow: var(--shadow2);
   }
 }
+.tabContainer {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--stroke);
+  padding-bottom: 4px;
+}
+
+.tabItem {
+  padding: 10px 20px;
+  border-radius: 12px 12px 0 0;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--muted);
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tabItem:hover {
+  background: rgba(37, 99, 235, 0.05);
+  color: var(--text);
+}
+
+.tabItem.active {
+  color: var(--a1);
+}
+
+.tabItem.active::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--a1);
+  border-radius: 3px 3px 0 0;
+}

@@ -314,7 +314,7 @@ export default function JobsPage() {
                   <td className="muted">{j.category || '-'}</td>
                   <td className="muted">{j.wage || '-'}</td>
                   <td className="muted">{j.company_name || '-'}</td>
-                  <td className="mono" style={{ fontSize: 10 }}>{j.created_by}</td>
+                  <td className="muted">{j.profiles?.full_name || j.created_by || '-'}</td>
                   <td>
                     {j.ratings?.[0]?.count > 0 ? (
                       <span className="pill bad" style={{ cursor: 'pointer' }} onClick={() => navigate(`/jobs/${j.id}`)}>
@@ -360,7 +360,7 @@ export default function JobsPage() {
           </div>
           <div className="formRow">
             <div className="label">Yaradan</div>
-            <div className="mono">{selected?.created_by}</div>
+            <div className="muted">{selected?.profiles?.full_name || selected?.created_by || '-'}</div>
           </div>
 
           <div className="formRow">

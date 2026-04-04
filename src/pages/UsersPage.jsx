@@ -3,11 +3,11 @@ import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
 import { api } from '../lib/api'
 import { useToast } from '../lib/ToastContext'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, User, Mail, Phone, Building, Calendar, Info } from 'lucide-react'
 
 export default function UsersPage() {
   const [q, setQ] = useState('')
-  const [role, setRole] = useState('')
+  const [activeTab, setActiveTab] = useState('seeker')
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -18,13 +18,17 @@ export default function UsersPage() {
   const [processing, setProcessing] = useState(false)
   const [deletionReason, setDeletionReason] = useState('')
 
+  // Detail Modal State
+  const [selectedUser, setSelectedUser] = useState(null)
+
   const toast = useToast()
 
-  const load = async () => {
+  const load = async (roleOverride) => {
     setError('')
     setLoading(true)
     try {
-      const { data } = await api.get('/admin/users', { params: { q, role, limit: 50 } })
+      const currentRole = roleOverride || activeTab
+      const { data } = await api.get('/admin/users', { params: { q, role: currentRole, limit: 100 } })
       setItems(data?.items || [])
     } catch (e) {
       toast.error(e?.response?.data?.error || e.message || 'Yüklənmə zamanı xəta baş verdi')
@@ -33,7 +37,7 @@ export default function UsersPage() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [activeTab])
 
   // Action Handlers
   const handleApproveClick = (u) => {
@@ -84,54 +88,65 @@ export default function UsersPage() {
   }
 
   return (
-    <Layout title="İstifadəçilər">
+    <Layout title="İstifadəçilər" subtitle="İstifadəçiləri, elanları və proses loqlarını idarə edin.">
+      
+      <div className="tabContainer">
+        <div 
+          className={`tabItem ${activeTab === 'seeker' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('seeker')}
+        >
+          İş axtaranlar
+        </div>
+        <div 
+          className={`tabItem ${activeTab === 'employer' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('employer')}
+        >
+          İşçi axtaranlar
+        </div>
+      </div>
+
       <div className="card">
-        <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 20 }}>
           <div className="row" style={{ flexWrap: 'wrap' }}>
             <input
               className="input"
               placeholder="Ad / şirkət / telefon axtar..."
               value={q}
               onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && load()}
               style={{ minWidth: 260 }}
             />
-            <select className="select" value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="">Bütün rollar</option>
-              <option value="seeker">İş axtaran</option>
-              <option value="employer">İşçi axtaran</option>
-            </select>
-            <button className="btn" onClick={load} disabled={loading}>Axtar</button>
+            <button className="btn primary" onClick={() => load()} disabled={loading}>Axtar</button>
           </div>
           <div className="muted">{loading ? 'Yüklənir…' : `${items.length} istifadəçi`}</div>
         </div>
+
         {error ? <div className="pill bad" style={{ marginTop: 12 }}>{error}</div> : null}
 
-        <div className="tableWrap" style={{ marginTop: 12 }}>
+        <div className="tableWrap">
           <table className="table">
             <thead>
               <tr>
-                <th>ID</th>
+                <th style={{ width: 60 }}>#</th>
                 <th>Status</th>
                 <th>Ad Soyad</th>
-                <th>Rol</th>
-                <th>Şirkət</th>
+                {activeTab === 'employer' && <th>Şirkət</th>}
                 <th>Reytinq</th>
                 <th>Telefon</th>
-                <th></th>
+                <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((u) => (
+              {items.map((u, idx) => (
                 <tr key={u.id}>
-                  <td className="mono" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.id}</td>
+                  <td className="muted font-mono">{idx + 1}</td>
                   <td>
                     {u.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
                       u.status === 'suspended' ? <span className="pill bad">Blok</span> :
                         <span className="pill good">Aktiv</span>}
                   </td>
-                  <td>{u.full_name || '-'}</td>
-                  <td><span className="pill">{u.role || '-'}</span></td>
-                  <td>{u.company_name || '-'}</td>
+                  <td style={{ fontWeight: 600 }}>{u.full_name || '-'}</td>
+                  {activeTab === 'employer' && <td>{u.company_name || '-'}</td>}
                   <td>
                     {u.average_rating ? (
                       <span className="pill success">
@@ -141,20 +156,75 @@ export default function UsersPage() {
                   </td>
                   <td className="mono">{u.phone || '-'}</td>
                   <td style={{ textAlign: 'right' }}>
-                    {u.status === 'pending' && (
-                      <button className="btn good" onClick={() => handleApproveClick(u)} disabled={processing} style={{ marginRight: 8 }}>Təsdiqlə</button>
-                    )}
-                    {/* Edit button removed as requested */}
-                    <button className="btn danger" onClick={() => handleDeleteClick(u)} disabled={processing}>Sil</button>
+                    <div className="row" style={{ justifyContent: 'flex-end' }}>
+                      <button className="btn" onClick={() => setSelectedUser(u)}>
+                        <Info size={14} />
+                        Ətraflı
+                      </button>
+                      {u.status === 'pending' && (
+                        <button className="btn good" onClick={() => handleApproveClick(u)} disabled={processing}>Təsdiqlə</button>
+                      )}
+                      <button className="btn danger" onClick={() => handleDeleteClick(u)} disabled={processing}>Sil</button>
+                    </div>
                   </td>
                 </tr>
               ))}
-              {(!loading && items.length === 0) ? <tr><td colSpan="8" className="muted">İstifadəçi yoxdur</td></tr> : null}
-              {loading ? <tr><td colSpan="8" className="muted">Yüklənir…</td></tr> : null}
+              {(!loading && items.length === 0) ? <tr><td colSpan={activeTab === 'employer' ? "7" : "6"} className="muted" style={{ padding: 40, textAlign: 'center' }}>İstifadəçi yoxdur</td></tr> : null}
+              {loading ? <tr><td colSpan={activeTab === 'employer' ? "7" : "6"} className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* User Detail Modal */}
+      <Modal
+        open={!!selectedUser}
+        title="İstifadəçi məlumatları"
+        onClose={() => setSelectedUser(null)}
+      >
+        {selectedUser && (
+          <div className="formGrid">
+            <div className="formRow">
+              <div className="label"><User size={12} style={{ marginRight: 4 }} /> Ad Soyad</div>
+              <div style={{ fontWeight: 600 }}>{selectedUser.full_name || '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label"><Mail size={12} style={{ marginRight: 4 }} /> Email</div>
+              <div className="mono">{selectedUser.email || '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label"><Phone size={12} style={{ marginRight: 4 }} /> Telefon</div>
+              <div className="mono">{selectedUser.phone || '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label"><Info size={12} style={{ marginRight: 4 }} /> Rol</div>
+              <div className="pill">{selectedUser.role === 'seeker' ? 'İş axtaran' : 'İşçi axtaran'}</div>
+            </div>
+            {selectedUser.role === 'employer' && (
+              <div className="formRow">
+                <div className="label"><Building size={12} style={{ marginRight: 4 }} /> Şirkət</div>
+                <div>{selectedUser.company_name || '-'}</div>
+              </div>
+            )}
+            <div className="formRow">
+              <div className="label"><Calendar size={12} style={{ marginRight: 4 }} /> Qeydiyyat tarixi</div>
+              <div className="muted">{new Date(selectedUser.created_at).toLocaleString('az-AZ')}</div>
+            </div>
+            <div className="formRow">
+              <div className="label">Status</div>
+              <div>
+                {selectedUser.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
+                  selectedUser.status === 'suspended' ? <span className="pill bad">Blok</span> :
+                    <span className="pill good">Aktiv</span>}
+              </div>
+            </div>
+            <div className="formRow">
+                <div className="label">UUID</div>
+                <div className="mono muted" style={{ fontSize: 11 }}>{selectedUser.id}</div>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Confirmation Modal */}
       <Modal
