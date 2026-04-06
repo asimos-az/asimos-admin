@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
+import Pagination from '../components/Pagination.jsx'
 import { api } from '../lib/api'
 import toast from 'react-hot-toast'
 
@@ -14,6 +15,9 @@ export default function CategoriesPage(){
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 15
 
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -143,13 +147,15 @@ export default function CategoriesPage(){
     return opts
   }, [items])
 
+  const paginatedItems = ordered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
   return (
     <Layout title="Kateqoriyalar" subtitle="Mobil app üçün kateqoriyaları və alt-kateqoriyaları idarə edin.">
       <div className="card">
         <div className="row" style={{justifyContent:'space-between', alignItems:'center', flexWrap:'wrap'}}>
           <div className="row" style={{flexWrap:'wrap'}}>
-            <input className="input" placeholder="Ad/slug axtar" value={q} onChange={(e)=>setQ(e.target.value)} style={{width:320, maxWidth:'100%'}} />
-            <button className="btn" onClick={load} disabled={loading}>Axtar</button>
+            <input className="input" placeholder="Ad/slug axtar" value={q} onChange={(e) => { setQ(e.target.value); setCurrentPage(1); }} style={{width:320, maxWidth:'100%'}} />
+            <button className="btn" onClick={() => { setCurrentPage(1); load(); }} disabled={loading}>Axtar</button>
           </div>
           <div className="row" style={{gap:10, flexWrap:'wrap', justifyContent:'flex-end'}}>
             <div className="muted">Göstərilir: {items.length}</div>
@@ -173,7 +179,7 @@ export default function CategoriesPage(){
               </tr>
             </thead>
             <tbody>
-              {ordered.map((c) => (
+              {paginatedItems.map((c) => (
                 <tr key={c.id}>
                   <td style={{fontWeight:800}}>
                     <span style={{display:'inline-flex', alignItems:'center', gap:8}}>
@@ -206,6 +212,13 @@ export default function CategoriesPage(){
             </tbody>
           </table>
         </div>
+        
+        <Pagination 
+          currentPage={currentPage}
+          totalItems={ordered.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       <Modal

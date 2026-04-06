@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
+import Pagination from '../components/Pagination.jsx'
 import { api } from '../lib/api'
 import { useToast } from '../lib/ToastContext'
 import { AlertTriangle, User, Mail, Phone, Building, Calendar, Info } from 'lucide-react'
@@ -12,6 +13,9 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 15
+
   // Confirmation Modal State
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmAction, setConfirmAction] = useState(null) // { type: 'delete' | 'approve', id: string, title: string }
@@ -22,6 +26,8 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState(null)
 
   const toast = useToast()
+
+  const paginatedItems = items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   const load = async (roleOverride) => {
     setError('')
@@ -93,13 +99,13 @@ export default function UsersPage() {
       <div className="tabContainer">
         <div 
           className={`tabItem ${activeTab === 'seeker' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('seeker')}
+          onClick={() => { setActiveTab('seeker'); setCurrentPage(1); }}
         >
           İş axtaranlar
         </div>
         <div 
           className={`tabItem ${activeTab === 'employer' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('employer')}
+          onClick={() => { setActiveTab('employer'); setCurrentPage(1); }}
         >
           İşçi axtaranlar
         </div>
@@ -112,7 +118,7 @@ export default function UsersPage() {
               className="input"
               placeholder="Ad / şirkət / telefon axtar..."
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => { setQ(e.target.value); setCurrentPage(1); }}
               onKeyDown={(e) => e.key === 'Enter' && load()}
               style={{ minWidth: 260 }}
             />
@@ -137,9 +143,9 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map((u, idx) => (
+              {paginatedItems.map((u, idx) => (
                 <tr key={u.id}>
-                  <td className="muted font-mono">{idx + 1}</td>
+                  <td className="muted font-mono">{(currentPage - 1) * itemsPerPage + idx + 1}</td>
                   <td>
                     {u.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
                       u.status === 'suspended' ? <span className="pill bad">Blok</span> :
@@ -174,6 +180,13 @@ export default function UsersPage() {
             </tbody>
           </table>
         </div>
+        
+        <Pagination 
+          currentPage={currentPage} 
+          totalItems={items.length} 
+          itemsPerPage={itemsPerPage} 
+          onPageChange={setCurrentPage} 
+        />
       </div>
 
       {/* User Detail Modal */}

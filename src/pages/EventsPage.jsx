@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout.jsx'
+import Pagination from '../components/Pagination.jsx'
 import { api } from '../lib/api'
 import { ArrowRight, CheckCircle2, Lock, MapPin, Bell, RefreshCw, FileText, User } from 'lucide-react'
 
@@ -129,6 +130,10 @@ export default function EventsPage() {
   const [error, setError] = useState('')
   const [hint, setHint] = useState('')
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 15
+  const paginatedItems = (items || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
   const load = async () => {
     setError('')
     setHint('')
@@ -161,9 +166,9 @@ export default function EventsPage() {
             <div className="muted">Qeydiyyat, giriş, lokasiya, elan yaratma və s. proseslər burada görünür.</div>
           </div>
           <div className="row">
-            <input className="input" style={{ width: 180 }} placeholder="növ (məs: auth_login)" value={type} onChange={(e) => setType(e.target.value)} />
-            <input className="input" style={{ width: 260 }} placeholder="actor_id" value={actorId} onChange={(e) => setActorId(e.target.value)} />
-            <button className="btn" onClick={load} disabled={loading}>{loading ? 'Yüklənir…' : 'Filtrlə'}</button>
+            <input className="input" style={{ width: 180 }} placeholder="növ (məs: auth_login)" value={type} onChange={(e) => { setType(e.target.value); setCurrentPage(1); }} />
+            <input className="input" style={{ width: 260 }} placeholder="actor_id" value={actorId} onChange={(e) => { setActorId(e.target.value); setCurrentPage(1); }} />
+            <button className="btn" onClick={() => { setCurrentPage(1); load(); }} disabled={loading}>{loading ? 'Yüklənir…' : 'Filtrlə'}</button>
           </div>
         </div>
 
@@ -178,7 +183,7 @@ export default function EventsPage() {
               </tr>
             </thead>
             <tbody>
-              {(items || []).map((ev) => (
+              {paginatedItems.map((ev) => (
                 <tr key={ev.id}>
                   <td className="muted" style={{ fontSize: 13 }}>{new Date(ev.created_at).toLocaleString('az-AZ')}</td>
                   <td><TypeBadge type={ev.type} /></td>
@@ -199,6 +204,13 @@ export default function EventsPage() {
             </tbody>
           </table>
         </div>
+        
+        <Pagination
+          currentPage={currentPage}
+          totalItems={(items || []).length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </Layout>
   )

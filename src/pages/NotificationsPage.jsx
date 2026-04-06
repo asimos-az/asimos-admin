@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Layout from '../components/Layout.jsx'
+import Pagination from '../components/Pagination.jsx'
 import { api } from '../lib/api'
 import { Bell, CheckCircle, ChevronRight, Info, AlertTriangle } from 'lucide-react'
 
@@ -10,6 +11,8 @@ export default function NotificationsPage() {
     const [items, setItems] = useState([])
     const [loading, setLoading] = useState(true)
     const [markingAll, setMarkingAll] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 15
 
     useEffect(() => {
         load()
@@ -57,6 +60,8 @@ export default function NotificationsPage() {
         }
     }
 
+    const paginatedItems = items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
     return (
         <Layout title="Bildirişlər" subtitle="Sistem tərəfindən göndərilən bütün mühüm bildirişlər.">
             <div className="card">
@@ -78,7 +83,7 @@ export default function NotificationsPage() {
                     <div className="muted" style={{ padding: 40, textAlign: 'center' }}>Hələ heç bir bildiriş yoxdur.</div>
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        {items.map(it => {
+                        {paginatedItems.map(it => {
                             const isUnread = !it.read_at
                             const isRating = it.data?.type === 'rating'
                             const isNewJob = it.data?.type === 'new_job'
@@ -124,6 +129,13 @@ export default function NotificationsPage() {
                         })}
                     </div>
                 )}
+                
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={items.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                />
             </div>
         </Layout>
     )

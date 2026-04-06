@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout.jsx'
 import Modal from '../components/Modal.jsx'
+import Pagination from '../components/Pagination.jsx'
 import AdminMapPicker from '../components/AdminMapPicker.jsx'
 import { api } from '../lib/api'
 import toast from 'react-hot-toast'
@@ -21,6 +22,8 @@ export default function JobsPage() {
   const [q, setQ] = useState('')
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 15
   const [error, setError] = useState('')
   const [selected, setSelected] = useState(null)
   const [creating, setCreating] = useState(false)
@@ -271,13 +274,15 @@ export default function JobsPage() {
 
   // NOTE: openCreate/createJob are defined earlier in this file.
 
+  const paginatedItems = items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
   return (
     <Layout title="Elanlar">
       <div className="card">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div className="row">
-            <input className="input" placeholder="Başlıq/kateqoriya/təsvir axtar" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: 340 }} />
-            <button className="btn" onClick={load} disabled={loading}>Axtar</button>
+            <input className="input" placeholder="Başlıq/kateqoriya/təsvir axtar" value={q} onChange={(e) => { setQ(e.target.value); setCurrentPage(1); }} style={{ width: 340 }} />
+            <button className="btn" onClick={() => { setCurrentPage(1); load(); }} disabled={loading}>Axtar</button>
           </div>
           <div className="row" style={{ gap: 10 }}>
             <button className="btn" onClick={openCreate}>+ Yeni elan</button>
@@ -302,7 +307,7 @@ export default function JobsPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map((j) => (
+              {paginatedItems.map((j) => (
                 <tr key={j.id}>
                   <td>
                     {j.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
@@ -335,11 +340,18 @@ export default function JobsPage() {
                   </td>
                 </tr>
               ))}
-              {loading ? <tr><td colSpan="7" className="muted">Yüklənir…</td></tr> : null}
-              {!loading && items.length === 0 ? <tr><td colSpan="7" className="muted">Elan tapılmadı.</td></tr> : null}
+              {loading ? <tr><td colSpan="9" className="muted">Yüklənir…</td></tr> : null}
+              {!loading && items.length === 0 ? <tr><td colSpan="9" className="muted">Elan tapılmadı.</td></tr> : null}
             </tbody>
           </table>
         </div>
+        
+        <Pagination 
+          currentPage={currentPage}
+          totalItems={items.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       <Modal
