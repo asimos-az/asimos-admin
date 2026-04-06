@@ -144,12 +144,32 @@ export default function JobDetailPage() {
                                 <td className="muted">Gündəlik?</td>
                                 <td>{job.isDaily ? 'Bəli' : 'Xeyr'}</td>
                             </tr>
+                            {job.isDaily && (
+                                <>
+                                    <tr>
+                                        <td className="muted">Gün sayı</td>
+                                        <td>{job.durationDays || job.duration_days || '-'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="muted">Başlama tarixi</td>
+                                        <td>{job.starts_at || '-'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="muted">İş saatları</td>
+                                        <td>{job.working_hours || '-'}</td>
+                                    </tr>
+                                </>
+                            )}
+                            <tr>
+                                <td className="muted">Bildiriş radiusu</td>
+                                <td>{job.notify_radius_m ? `${job.notify_radius_m} m` : 'Ölkə üzrə'}</td>
+                            </tr>
                             <tr>
                                 <td className="muted">Yaradan (User ID)</td>
                                 <td className="mono">
                                     {job.creator ? (
                                         <div>
-                                            {job.creator.email || job.creator.fullName || 'Adsız'}
+                                            {job.creator.email || job.creator.fullName || job.creator.full_name || 'Adsız'}
                                             <div style={{ fontSize: 10, color: '#9ca3af' }}>{job.creator.role}</div>
                                         </div>
                                     ) : job.createdBy}
@@ -157,7 +177,7 @@ export default function JobDetailPage() {
                             </tr>
                             <tr>
                                 <td className="muted">Tarix</td>
-                                <td>{new Date(job.createdAt).toLocaleString('az-AZ')}</td>
+                                <td>{new Date(job.createdAt || job.created_at).toLocaleString('az-AZ')}</td>
                             </tr>
                             <tr>
                                 <td className="muted">Bitmə Tarixi</td>
@@ -256,16 +276,19 @@ export default function JobDetailPage() {
                     )}
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
-                        {ratings.map(r => (
-                            <div key={r.id} style={{ padding: 12, border: '1px solid var(--stroke)', borderRadius: 8, background: 'var(--bg1)' }}>
-                                <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
-                                    <div style={{ fontWeight: 600 }}>{r.reviewer?.full_name || 'Adsız'} <span className="muted" style={{ fontSize: 12, fontWeight: 400 }}>({r.reviewer?.email || r.reviewer?.phone || 'Əlaqə yoxdur'})</span></div>
-                                    <div className="pill" style={{ fontSize: 11 }}>{r.score} ulduz</div>
+                        {ratings.map(r => {
+                            const isSuspicious = r.comment?.includes('🔍 Şübhəli görünür');
+                            return (
+                                <div key={r.id} style={{ padding: 12, border: `1px solid ${isSuspicious ? '#FCA5A5' : 'var(--stroke)'}`, borderRadius: 8, background: isSuspicious ? '#FEF2F2' : 'var(--bg1)' }}>
+                                    <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
+                                        <div style={{ fontWeight: 600 }}>{r.reviewer?.full_name || 'Adsız'} <span className="muted" style={{ fontSize: 12, fontWeight: 400 }}>({r.reviewer?.email || r.reviewer?.phone || 'Əlaqə yoxdur'})</span></div>
+                                        <div className={`pill ${isSuspicious ? 'bad' : ''}`} style={{ fontSize: 11 }}>{r.score} ulduz</div>
+                                    </div>
+                                    <div style={{ fontSize: 14, color: isSuspicious ? '#B91C1C' : 'var(--text2)', marginBottom: 8, fontWeight: isSuspicious ? 600 : 400 }}>{r.comment || 'Şərh yoxdur'}</div>
+                                    <div className="muted" style={{ fontSize: 11 }}>{new Date(r.created_at).toLocaleString('az-AZ')}</div>
                                 </div>
-                                <div style={{ fontSize: 14, color: 'var(--text2)', marginBottom: 8 }}>{r.comment || 'Şərh yoxdur'}</div>
-                                <div className="muted" style={{ fontSize: 11 }}>{new Date(r.created_at).toLocaleString('az-AZ')}</div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
