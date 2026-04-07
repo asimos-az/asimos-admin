@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   Activity,
@@ -38,17 +38,26 @@ export default function Layout({ title, children, subtitle }) {
   const loc = useLocation()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const prevCount = useRef(0)
 
   useEffect(() => {
     loadUnreadCount()
-    const int = setInterval(loadUnreadCount, 30000)
+    const int = setInterval(loadUnreadCount, 10000)
     return () => clearInterval(int)
   }, [])
 
   const loadUnreadCount = async () => {
     try {
       const { data } = await api.get('/me/notifications/unread-count')
-      setUnreadCount(data?.unread || 0)
+      const current = data?.unread || 0;
+      if (current > prevCount.current) {
+        try {
+           const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+           audio.play().catch(() => {});
+        } catch(e) {}
+      }
+      prevCount.current = current;
+      setUnreadCount(current)
     } catch (e) {}
   }
 
