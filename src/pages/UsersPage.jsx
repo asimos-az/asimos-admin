@@ -78,7 +78,7 @@ export default function UsersPage() {
       type: 'approveSwitch',
       id: req.id,
       title: 'Rol dəyişikliyini təsdiqlə',
-      message: `"${req.user?.full_name || req.user_id}" istifadəçisinin işçi axtarana keçməsini təsdiqləmək istəyirsiniz? (${req.company_name})`
+      message: `"${req.user?.full_name || req.user?.phone || req.user_id}" istifadəçisinin işçi axtarana keçməsini təsdiqləmək istəyirsiniz? (${req.company_name})`
     })
     setRejectNote('')
     setConfirmOpen(true)
@@ -89,7 +89,7 @@ export default function UsersPage() {
       type: 'rejectSwitch',
       id: req.id,
       title: 'Rol dəyişikliyini rədd et',
-      message: `"${req.user?.full_name || req.user_id}" istifadəçisinin rol dəyişikliyi sorğusunu rədd etmək istəyirsiniz?`
+      message: `"${req.user?.full_name || req.user?.phone || req.user_id}" istifadəçisinin rol dəyişikliyi sorğusunu rədd etmək istəyirsiniz?`
     })
     setRejectNote('')
     setConfirmOpen(true)
@@ -111,10 +111,15 @@ export default function UsersPage() {
         await api.delete(`/admin/users/${confirmAction.id}`, { data: { reason: deletionReason } })
         toast.success("İstifadəçi uğurla silindi")
       } else if (confirmAction.type === 'approveSwitch') {
-        await api.post(`/admin/role-switch-requests/${confirmAction.id}/approve`, { note: rejectNote || undefined })
+        await api.post(`/admin/role-switch-requests/${confirmAction.id}/approve`)
         toast.success("Rol dəyişikliyi təsdiqləndi")
       } else if (confirmAction.type === 'rejectSwitch') {
-        await api.post(`/admin/role-switch-requests/${confirmAction.id}/reject`, { note: rejectNote || undefined })
+        if (!rejectNote.trim()) {
+          toast.error('Rədd səbəbini yazın')
+          setProcessing(false)
+          return
+        }
+        await api.post(`/admin/role-switch-requests/${confirmAction.id}/reject`, { note: rejectNote.trim() })
         toast.success("Rol dəyişikliyi rədd edildi")
       }
       setConfirmOpen(false)
@@ -370,10 +375,10 @@ export default function UsersPage() {
             />
           )}
 
-          {(confirmAction?.type === 'rejectSwitch' || confirmAction?.type === 'approveSwitch') && (
+          {confirmAction?.type === 'rejectSwitch' && (
             <textarea
               className="input"
-              placeholder="Qeyd (istəyə görə)..."
+              placeholder="Rədd səbəbini yazın..."
               style={{ width: '100%', minHeight: 60, resize: 'vertical' }}
               value={rejectNote}
               onChange={(e) => setRejectNote(e.target.value)}
