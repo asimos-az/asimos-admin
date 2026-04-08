@@ -4,7 +4,7 @@ import Modal from '../components/Modal.jsx'
 import Pagination from '../components/Pagination.jsx'
 import { api } from '../lib/api'
 import { useToast } from '../lib/ToastContext'
-import { AlertTriangle, User, Mail, Phone, Building, Calendar, Info } from 'lucide-react'
+import { AlertTriangle, User, Mail, Phone, Building, Calendar, Info, RefreshCw } from 'lucide-react'
 
 export default function UsersPage() {
   const [q, setQ] = useState('')
@@ -18,9 +18,10 @@ export default function UsersPage() {
 
   // Confirmation Modal State
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [confirmAction, setConfirmAction] = useState(null) // { type: 'delete' | 'approve', id: string, title: string }
+  const [confirmAction, setConfirmAction] = useState(null)
   const [processing, setProcessing] = useState(false)
   const [deletionReason, setDeletionReason] = useState('')
+  const [rejectNote, setRejectNote] = useState('')
 
   // Detail Modal State
   const [selectedUser, setSelectedUser] = useState(null)
@@ -33,9 +34,14 @@ export default function UsersPage() {
     setError('')
     setLoading(true)
     try {
-      const currentRole = roleOverride || activeTab
-      const { data } = await api.get('/admin/users', { params: { q, role: currentRole, limit: 100 } })
-      setItems(data?.items || [])
+      const currentRole = roleOverride !== undefined ? roleOverride : activeTab
+      if (currentRole === 'rolSwitch') {
+        const { data } = await api.get('/admin/role-switch-requests', { params: { status: 'pending' } })
+        setItems(data?.items || [])
+      } else {
+        const { data } = await api.get('/admin/users', { params: { q, role: currentRole, limit: 100 } })
+        setItems(data?.items || [])
+      }
     } catch (e) {
       toast.error(e?.response?.data?.error || e.message || 'Yüklənmə zamanı xəta baş verdi')
     } finally {
@@ -43,7 +49,7 @@ export default function UsersPage() {
     }
   }
 
-  useEffect(() => { load() }, [activeTab])
+  useEffect(() => { load(activeTab) }, [activeTab])
 
   // Action Handlers
   const handleApproveClick = (u) => {
@@ -67,6 +73,28 @@ export default function UsersPage() {
     setConfirmOpen(true)
   }
 
+  const handleApproveSwitchClick = (req) => {
+    setConfirmAction({
+      type: 'approveSwitch',
+      id: req.id,
+      title: 'Rol dəyişikliyini təsdiqlə',
+      message: `"${req.user?.full_name || req.user_id}" istifadəçisinin işçi axtarana keçməsini təsdiqləmək istəyirsiniz? (${req.company_name})`
+    })
+    setRejectNote('')
+    setConfirmOpen(true)
+  }
+
+  const handleRejectSwitchClick = (req) => {
+    setConfirmAction({
+      type: 'rejectSwitch',
+      id: req.id,
+      title: 'Rol dəyişikliyini rədd et',
+      message: `"${req.user?.full_name || req.user_id}" istifadəçisinin rol dəyişikliyi sorğusunu rədd etmək istəyirsiniz?`
+    })
+    setRejectNote('')
+    setConfirmOpen(true)
+  }
+
   const performAction = async () => {
     if (!confirmAction) return
     setProcessing(true)
@@ -82,10 +110,16 @@ export default function UsersPage() {
         }
         await api.delete(`/admin/users/${confirmAction.id}`, { data: { reason: deletionReason } })
         toast.success("İstifadəçi uğurla silindi")
+      } else if (confirmAction.type === 'approveSwitch') {
+        await api.post(`/admin/role-switch-requests/${confirmAction.id}/approve`, { note: rejectNote || undefined })
+        toast.success("Rol dəyişikliyi təsdiqləndi")
+      } else if (confirmAction.type === 'rejectSwitch') {
+        await api.post(`/admin/role-switch-requests/${confirmAction.id}/reject`, { note: rejectNote || undefined })
+        toast.success("Rol dəyişikliyi rədd edildi")
       }
       setConfirmOpen(false)
       setConfirmAction(null)
-      await load()
+      await load(activeTab)
     } catch (e) {
       toast.error(e?.response?.data?.error || e.message || 'Xəta baş verdi')
     } finally {
@@ -109,77 +143,134 @@ export default function UsersPage() {
         >
           İşçi axtaranlar
         </div>
+        <div
+          className={`tabItem ${activeTab === 'rolSwitch' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('rolSwitch'); setCurrentPage(1); }}
+        >
+          <RefreshCw size={13} style={{ marginRight: 5, verticalAlign: 'middle' }} />
+          Rol sorğuları
+        </div>
       </div>
 
       <div className="card">
-        <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 20 }}>
-          <div className="row" style={{ flexWrap: 'wrap' }}>
-            <input
-              className="input"
-              placeholder="Ad / şirkət / telefon axtar..."
-              value={q}
-              onChange={(e) => { setQ(e.target.value); setCurrentPage(1); }}
-              onKeyDown={(e) => e.key === 'Enter' && load()}
-              style={{ minWidth: 260 }}
-            />
-            <button className="btn primary" onClick={() => load()} disabled={loading}>Axtar</button>
+        {activeTab !== 'rolSwitch' && (
+          <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 20 }}>
+            <div className="row" style={{ flexWrap: 'wrap' }}>
+              <input
+                className="input"
+                placeholder="Ad / şirkət / telefon axtar..."
+                value={q}
+                onChange={(e) => { setQ(e.target.value); setCurrentPage(1); }}
+                onKeyDown={(e) => e.key === 'Enter' && load(activeTab)}
+                style={{ minWidth: 260 }}
+              />
+              <button className="btn primary" onClick={() => load(activeTab)} disabled={loading}>Axtar</button>
+            </div>
+            <div className="muted">{loading ? 'Yüklənir…' : `${items.length} istifadəçi`}</div>
           </div>
-          <div className="muted">{loading ? 'Yüklənir…' : `${items.length} istifadəçi`}</div>
-        </div>
+        )}
+        {activeTab === 'rolSwitch' && (
+          <div className="row" style={{ justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ fontWeight: 600, fontSize: 15 }}>Gözləyən rol dəyişikliyi sorğuları</div>
+            <div className="row">
+              <div className="muted" style={{ marginRight: 12 }}>{loading ? 'Yüklənir…' : `${items.length} sorğu`}</div>
+              <button className="btn" onClick={() => load('rolSwitch')} disabled={loading}>Yenilə</button>
+            </div>
+          </div>
+        )}
 
         {error ? <div className="pill bad" style={{ marginTop: 12 }}>{error}</div> : null}
 
-        <div className="tableWrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: 60 }}>#</th>
-                <th>Status</th>
-                <th>Ad Soyad</th>
-                {activeTab === 'employer' && <th>Şirkət</th>}
-                <th>Reytinq</th>
-                <th>Telefon</th>
-                <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedItems.map((u, idx) => (
-                <tr key={u.id}>
-                  <td className="muted font-mono">{(currentPage - 1) * itemsPerPage + idx + 1}</td>
-                  <td>
-                    {u.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
-                      u.status === 'suspended' ? <span className="pill bad">Blok</span> :
-                        <span className="pill good">Aktiv</span>}
-                  </td>
-                  <td style={{ fontWeight: 600 }}>{u.full_name || '-'}</td>
-                  {activeTab === 'employer' && <td>{u.company_name || '-'}</td>}
-                  <td>
-                    {u.average_rating ? (
-                      <span className="pill success">
-                        ★ {Number(u.average_rating).toFixed(1)} <span style={{ opacity: 0.7, fontSize: 10 }}>({u.rating_count})</span>
-                      </span>
-                    ) : '-'}
-                  </td>
-                  <td className="mono">{u.phone || '-'}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div className="row" style={{ justifyContent: 'flex-end' }}>
-                      <button className="btn" onClick={() => setSelectedUser(u)}>
-                        <Info size={14} />
-                        Ətraflı
-                      </button>
-                      {u.status === 'pending' && (
-                        <button className="btn good" onClick={() => handleApproveClick(u)} disabled={processing}>Təsdiqlə</button>
-                      )}
-                      <button className="btn danger" onClick={() => handleDeleteClick(u)} disabled={processing}>Sil</button>
-                    </div>
-                  </td>
+        {activeTab === 'rolSwitch' ? (
+          <div className="tableWrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th style={{ width: 60 }}>#</th>
+                  <th>İstifadəçi</th>
+                  <th>Şirkət</th>
+                  <th>Sahə</th>
+                  <th>Tarix</th>
+                  <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
                 </tr>
-              ))}
-              {(!loading && items.length === 0) ? <tr><td colSpan={activeTab === 'employer' ? "7" : "6"} className="muted" style={{ padding: 40, textAlign: 'center' }}>İstifadəçi yoxdur</td></tr> : null}
-              {loading ? <tr><td colSpan={activeTab === 'employer' ? "7" : "6"} className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedItems.map((req, idx) => (
+                  <tr key={req.id}>
+                    <td className="muted font-mono">{(currentPage - 1) * itemsPerPage + idx + 1}</td>
+                    <td>
+                      <div style={{ fontWeight: 600 }}>{req.user?.full_name || '-'}</div>
+                      <div className="muted" style={{ fontSize: 12 }}>{req.user?.phone || req.user?.email || '-'}</div>
+                    </td>
+                    <td>{req.company_name || '-'}</td>
+                    <td className="muted">{req.category || '-'}</td>
+                    <td className="muted" style={{ fontSize: 12 }}>{new Date(req.requested_at).toLocaleString('az-AZ')}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="row" style={{ justifyContent: 'flex-end' }}>
+                        <button className="btn good" onClick={() => handleApproveSwitchClick(req)} disabled={processing}>Təsdiqlə</button>
+                        <button className="btn danger" onClick={() => handleRejectSwitchClick(req)} disabled={processing}>Rədd et</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {(!loading && items.length === 0) ? <tr><td colSpan="6" className="muted" style={{ padding: 40, textAlign: 'center' }}>Gözləyən sorğu yoxdur</td></tr> : null}
+                {loading ? <tr><td colSpan="6" className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="tableWrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th style={{ width: 60 }}>#</th>
+                  <th>Status</th>
+                  <th>Ad Soyad</th>
+                  {activeTab === 'employer' && <th>Şirkət</th>}
+                  <th>Reytinq</th>
+                  <th>Telefon</th>
+                  <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedItems.map((u, idx) => (
+                  <tr key={u.id}>
+                    <td className="muted font-mono">{(currentPage - 1) * itemsPerPage + idx + 1}</td>
+                    <td>
+                      {u.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
+                        u.status === 'suspended' ? <span className="pill bad">Blok</span> :
+                          <span className="pill good">Aktiv</span>}
+                    </td>
+                    <td style={{ fontWeight: 600 }}>{u.full_name || '-'}</td>
+                    {activeTab === 'employer' && <td>{u.company_name || '-'}</td>}
+                    <td>
+                      {u.average_rating ? (
+                        <span className="pill success">
+                          ★ {Number(u.average_rating).toFixed(1)} <span style={{ opacity: 0.7, fontSize: 10 }}>({u.rating_count})</span>
+                        </span>
+                      ) : '-'}
+                    </td>
+                    <td className="mono">{u.phone || '-'}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="row" style={{ justifyContent: 'flex-end' }}>
+                        <button className="btn" onClick={() => setSelectedUser(u)}>
+                          <Info size={14} />
+                          Ətraflı
+                        </button>
+                        {u.status === 'pending' && (
+                          <button className="btn good" onClick={() => handleApproveClick(u)} disabled={processing}>Təsdiqlə</button>
+                        )}
+                        <button className="btn danger" onClick={() => handleDeleteClick(u)} disabled={processing}>Sil</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {(!loading && items.length === 0) ? <tr><td colSpan={activeTab === 'employer' ? "7" : "6"} className="muted" style={{ padding: 40, textAlign: 'center' }}>İstifadəçi yoxdur</td></tr> : null}
+                {loading ? <tr><td colSpan={activeTab === 'employer' ? "7" : "6"} className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
+              </tbody>
+            </table>
+          </div>
+        )}
         
         <Pagination 
           currentPage={currentPage} 
@@ -248,18 +339,22 @@ export default function UsersPage() {
           <>
             <button className="btn ghost" onClick={() => setConfirmOpen(false)} disabled={processing}>Ləğv et</button>
             <button
-              className={`btn ${confirmAction?.type === 'delete' ? 'danger' : 'primary'}`}
+              className={`btn ${confirmAction?.type === 'delete' || confirmAction?.type === 'rejectSwitch' ? 'danger' : 'primary'}`}
               onClick={performAction}
               disabled={processing}
             >
-              {processing ? 'İcra olunur...' : (confirmAction?.type === 'delete' ? 'Sil' : 'Təsdiqlə')}
+              {processing ? 'İcra olunur...' : (
+                confirmAction?.type === 'delete' ? 'Sil' :
+                confirmAction?.type === 'rejectSwitch' ? 'Rədd et' :
+                'Təsdiqlə'
+              )}
             </button>
           </>
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '10px 0' }}>
-          <div style={{ width: 60, height: 60, borderRadius: '50%', background: confirmAction?.type === 'delete' ? 'rgba(255, 0, 0, 0.1)' : 'rgba(16, 185, 129, 0.1)', display: 'grid', placeItems: 'center', marginBottom: 16 }}>
-            <AlertTriangle size={32} color={confirmAction?.type === 'delete' ? '#ef4444' : '#10b981'} />
+          <div style={{ width: 60, height: 60, borderRadius: '50%', background: (confirmAction?.type === 'delete' || confirmAction?.type === 'rejectSwitch') ? 'rgba(255, 0, 0, 0.1)' : 'rgba(16, 185, 129, 0.1)', display: 'grid', placeItems: 'center', marginBottom: 16 }}>
+            <AlertTriangle size={32} color={(confirmAction?.type === 'delete' || confirmAction?.type === 'rejectSwitch') ? '#ef4444' : '#10b981'} />
           </div>
           <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--text)', marginBottom: 12 }}>
             {confirmAction?.message}
@@ -272,6 +367,16 @@ export default function UsersPage() {
               style={{ width: '100%', minHeight: 80, resize: 'vertical' }}
               value={deletionReason}
               onChange={(e) => setDeletionReason(e.target.value)}
+            />
+          )}
+
+          {(confirmAction?.type === 'rejectSwitch' || confirmAction?.type === 'approveSwitch') && (
+            <textarea
+              className="input"
+              placeholder="Qeyd (istəyə görə)..."
+              style={{ width: '100%', minHeight: 60, resize: 'vertical' }}
+              value={rejectNote}
+              onChange={(e) => setRejectNote(e.target.value)}
             />
           )}
         </div>
