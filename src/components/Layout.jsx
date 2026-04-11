@@ -38,7 +38,8 @@ export default function Layout({ title, children, subtitle }) {
   const loc = useLocation()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
-  const prevCount = useRef(0)
+  const prevLatestTs = useRef(0)
+  const seenKey = 'ASIMOS_ADMIN_NOTIF_SEEN_AT'
 
   useEffect(() => {
     loadUnreadCount()
@@ -46,18 +47,44 @@ export default function Layout({ title, children, subtitle }) {
     return () => clearInterval(int)
   }, [])
 
+  const playNotifSound = () => {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext
+      if (!Ctx) return
+      const ctx = new Ctx()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.value = 920
+      gain.gain.value = 0.06
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start()
+      setTimeout(() => {
+        osc.stop()
+        ctx.close().catch(() => {})
+      }, 130)
+    } catch {}
+  }
+
   const loadUnreadCount = async () => {
     try {
-      const { data } = await api.get('/me/notifications/unread-count')
-      const current = data?.unread || 0;
-      if (current > prevCount.current) {
-        try {
-           const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-           audio.play().catch(() => {});
-        } catch(e) {}
+      const { data } = await api.get('/admin/events', { params: { limit: 120 } })
+      const all = data?.items || []
+      const requestEvents = all.filter((e) => e?.type === 'role_switch_request_pending' || e?.type === 'support_ticket')
+
+      const seenAt = Number(localStorage.getItem(seenKey) || 0)
+      const unread = requestEvents.filter((e) => {
+        const ts = new Date(e.created_at).getTime()
+        return Number.isFinite(ts) && ts > seenAt
+      }).length
+
+      const latestTs = requestEvents.length ? new Date(requestEvents[0].created_at).getTime() : 0
+      if (latestTs > (prevLatestTs.current || 0)) {
+        playNotifSound()
       }
-      prevCount.current = current;
-      setUnreadCount(current)
+      prevLatestTs.current = latestTs || prevLatestTs.current
+      setUnreadCount(unread)
     } catch (e) {}
   }
 
@@ -149,7 +176,11 @@ export default function Layout({ title, children, subtitle }) {
           <div className="topbarRight">
             <div 
               className="iconBtn" 
-              onClick={() => nav('/notifications')}
+              onClick={() => {
+                localStorage.setItem(seenKey, String(Date.now()))
+                setUnreadCount(0)
+                nav('/notifications')
+              }}
               style={{ position: 'relative', cursor: 'pointer', marginRight: 10 }}
             >
               <Bell size={20} />

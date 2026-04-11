@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Layout from '../components/Layout.jsx'
 import Pagination from '../components/Pagination.jsx'
 import { api } from '../lib/api'
-import { Bell, CheckCircle, ChevronRight, Info, AlertTriangle } from 'lucide-react'
+import { Bell, CheckCircle, Info, AlertTriangle, MessageSquare } from 'lucide-react'
 
 export default function NotificationsPage() {
-    const navigate = useNavigate()
     const [items, setItems] = useState([])
     const [loading, setLoading] = useState(true)
     const [markingAll, setMarkingAll] = useState(false)
@@ -21,8 +19,10 @@ export default function NotificationsPage() {
     const load = async () => {
         setLoading(true)
         try {
-            const { data } = await api.get('/me/notifications', { params: { limit: 100 } })
-            setItems(data?.items || [])
+            const { data } = await api.get('/admin/events', { params: { limit: 150 } })
+            const all = data?.items || []
+            const requestEvents = all.filter((e) => e?.type === 'role_switch_request_pending' || e?.type === 'support_ticket')
+            setItems(requestEvents)
         } catch (e) {
             toast.error('Bildirişləri yükləmək mümkün olmadı')
         } finally {
@@ -34,9 +34,9 @@ export default function NotificationsPage() {
         if (markingAll) return
         setMarkingAll(true)
         try {
-            await api.post('/me/notifications/read-all')
-            setItems(prev => prev.map(it => ({ ...it, read_at: it.read_at || new Date().toISOString() })))
+            localStorage.setItem('ASIMOS_ADMIN_NOTIF_SEEN_AT', String(Date.now()))
             toast.success('Hamısı oxunmuş olaraq qeyd edildi')
+            await load()
         } catch (e) {
             toast.error('Xəta baş verdi')
         } finally {
@@ -44,21 +44,11 @@ export default function NotificationsPage() {
         }
     }
 
-    const onNotificationClick = async (notif) => {
-        if (!notif.read_at) {
-            try {
-                api.patch(`/me/notifications/${notif.id}/read`)
-                setItems(prev => prev.map(it => it.id === notif.id ? { ...it, read_at: new Date().toISOString() } : it))
-            } catch (e) {}
-        }
-
-        const data = notif.data || {}
-        if (data.type === 'new_job' && data.id) {
-            navigate(`/jobs/${data.id}`)
-        } else if (data.type === 'rating' && data.job_id) {
-            navigate(`/jobs/${data.job_id}`)
-        }
-    }
+    const seenAt = Number(localStorage.getItem('ASIMOS_ADMIN_NOTIF_SEEN_AT') || 0)
+    const unreadCount = (items || []).filter((it) => {
+      const ts = new Date(it.created_at).getTime()
+      return Number.isFinite(ts) && ts > seenAt
+    }).length
 
     const paginatedItems = items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
@@ -69,7 +59,7 @@ export default function NotificationsPage() {
                     <h2 style={{ fontSize: 18, margin: 0 }}>Bütün Bildirişlər</h2>
                     <button 
                         className="btn ghost" 
-                        disabled={markingAll || items.filter(it => !it.read_at).length === 0}
+                        disabled={markingAll || unreadCount === 0}
                         onClick={markAllRead}
                     >
                         <CheckCircle size={16} style={{ marginRight: 8 }} />
@@ -84,15 +74,28 @@ export default function NotificationsPage() {
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {paginatedItems.map(it => {
-                            const isUnread = !it.read_at
-                            const isRating = it.data?.type === 'rating'
-                            const isNewJob = it.data?.type === 'new_job'
+                                                        const eventData = it.metadata || {}
+                                                        const ts = new Date(it.created_at).getTime()
+                                                        const isUnread = Number.isFinite(ts) && ts > seenAt
+                                                        const isRoleSwitch = it.type === 'role_switch_request_pending'
+                                                        const isSupport = it.type === 'support_ticket'
+
+                                                        const title = isRoleSwitch
+                                                            ? 'Yeni rol dəyişikliyi sorğusu'
+                                                            : isSupport
+                                                                ? 'Yeni dəstək müraciəti'
+                                                                : it.type
+
+                                                        const body = isRoleSwitch
+                                                            ? `${eventData?.companyName || 'Şirkət göstərilməyib'} • istifadəçi: ${eventData?.requestId || '-'}`
+                                                            : isSupport
+                                                                ? `${eventData?.subject || 'Dəstək müraciəti'} • status: ${eventData?.status || '-'}`
+                                                                : JSON.stringify(eventData || {})
 
                             return (
                                 <div 
                                     key={it.id} 
                                     className="row"
-                                    onClick={() => onNotificationClick(it)}
                                     style={{
                                         padding: '16px 20px',
                                         background: isUnread ? 'var(--bg2)' : 'transparent',
@@ -106,24 +109,20 @@ export default function NotificationsPage() {
                                         width: 40,
                                         height: 40,
                                         borderRadius: '50%',
-                                        background: isRating ? '#FEF3C7' : (isNewJob ? '#DBEAFE' : '#F3F4F6'),
+                                        background: isRoleSwitch ? '#DBEAFE' : (isSupport ? '#DCFCE7' : '#F3F4F6'),
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        color: isRating ? '#D97706' : (isNewJob ? '#2563EB' : '#6B7280')
+                                        color: isRoleSwitch ? '#2563EB' : (isSupport ? '#16A34A' : '#6B7280')
                                     }}>
-                                        {isRating ? <AlertTriangle size={20} /> : (isNewJob ? <Bell size={20} /> : <Info size={20} />)}
+                                        {isRoleSwitch ? <Bell size={20} /> : (isSupport ? <MessageSquare size={20} /> : <AlertTriangle size={20} />)}
                                     </div>
 
                                     <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: isUnread ? 700 : 500, fontSize: 15, color: 'var(--text1)' }}>{it.title}</div>
-                                        <div style={{ fontSize: 14, color: 'var(--text2)', marginTop: 2 }}>{it.body}</div>
+                                        <div style={{ fontWeight: isUnread ? 700 : 500, fontSize: 15, color: 'var(--text1)' }}>{title}</div>
+                                        <div style={{ fontSize: 14, color: 'var(--text2)', marginTop: 2 }}>{body}</div>
                                         <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>{new Date(it.created_at).toLocaleString('az-AZ')}</div>
                                     </div>
-
-                                    {(isNewJob || isRating) && (
-                                        <ChevronRight size={18} className="muted" />
-                                    )}
                                 </div>
                             )
                         })}
