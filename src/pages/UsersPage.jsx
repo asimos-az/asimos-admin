@@ -370,6 +370,10 @@ export default function UsersPage() {
               <div>{selectedSwitchRequest.company_name || '-'}</div>
             </div>
             <div className="formRow">
+              <div className="label">VOEN</div>
+              <div className="mono">{selectedSwitchRequest.voen || '-'}</div>
+            </div>
+            <div className="formRow">
               <div className="label">Kateqoriya</div>
               <div>{selectedSwitchRequest.category || '-'}</div>
             </div>
