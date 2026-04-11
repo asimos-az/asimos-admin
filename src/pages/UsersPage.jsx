@@ -25,6 +25,7 @@ export default function UsersPage() {
 
   // Detail Modal State
   const [selectedUser, setSelectedUser] = useState(null)
+  const [selectedSwitchRequest, setSelectedSwitchRequest] = useState(null)
 
   const toast = useToast()
 
@@ -212,6 +213,10 @@ export default function UsersPage() {
                     <td className="muted" style={{ fontSize: 12 }}>{new Date(req.requested_at).toLocaleString('az-AZ')}</td>
                     <td style={{ textAlign: 'right' }}>
                       <div className="row" style={{ justifyContent: 'flex-end' }}>
+                        <button className="btn" onClick={() => setSelectedSwitchRequest(req)}>
+                          <Info size={14} />
+                          Ətraflı
+                        </button>
                         <button className="btn good" onClick={() => handleApproveSwitchClick(req)} disabled={processing}>Təsdiqlə</button>
                         <button className="btn danger" onClick={() => handleRejectSwitchClick(req)} disabled={processing}>Rədd et</button>
                       </div>
@@ -330,6 +335,56 @@ export default function UsersPage() {
             <div className="formRow">
                 <div className="label">UUID</div>
                 <div className="mono muted" style={{ fontSize: 11 }}>{selectedUser.id}</div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Role Switch Detail Modal */}
+      <Modal
+        open={!!selectedSwitchRequest}
+        title="Rol sorğusu məlumatları"
+        onClose={() => setSelectedSwitchRequest(null)}
+      >
+        {selectedSwitchRequest && (
+          <div className="formGrid">
+            <div className="formRow">
+              <div className="label"><User size={12} style={{ marginRight: 4 }} /> Ad Soyad</div>
+              <div style={{ fontWeight: 600 }}>{selectedSwitchRequest.user?.full_name || '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label"><Phone size={12} style={{ marginRight: 4 }} /> Telefon</div>
+              <div className="mono">{selectedSwitchRequest.user?.phone || '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label"><Info size={12} style={{ marginRight: 4 }} /> Keçid</div>
+              <div>
+                <span className="pill">{selectedSwitchRequest.from_role || 'seeker'} → {selectedSwitchRequest.to_role || 'employer'}</span>
+              </div>
+            </div>
+            <div className="formRow">
+              <div className="label"><Building size={12} style={{ marginRight: 4 }} /> Şirkət</div>
+              <div>{selectedSwitchRequest.company_name || '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label">Kateqoriya</div>
+              <div>{selectedSwitchRequest.category || '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label">Status</div>
+              <div>
+                {selectedSwitchRequest.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
+                  selectedSwitchRequest.status === 'rejected' ? <span className="pill bad">Rədd edilib</span> :
+                    <span className="pill good">Təsdiqlənib</span>}
+              </div>
+            </div>
+            <div className="formRow">
+              <div className="label"><Calendar size={12} style={{ marginRight: 4 }} /> Sorğu tarixi</div>
+              <div className="muted">{selectedSwitchRequest.requested_at ? new Date(selectedSwitchRequest.requested_at).toLocaleString('az-AZ') : '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label">UUID</div>
+              <div className="mono muted" style={{ fontSize: 11 }}>{selectedSwitchRequest.user_id || '-'}</div>
             </div>
           </div>
         )}
