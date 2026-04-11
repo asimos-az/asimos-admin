@@ -197,6 +197,7 @@ export default function UsersPage() {
                   <th>Şirkət</th>
                   <th>Sahə</th>
                   <th>Tarix</th>
+                  <th style={{ textAlign: 'center' }}>Ətraflı</th>
                   <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
                 </tr>
               </thead>
@@ -204,27 +205,29 @@ export default function UsersPage() {
                 {paginatedItems.map((req, idx) => (
                   <tr key={req.id}>
                     <td className="muted font-mono">{(currentPage - 1) * itemsPerPage + idx + 1}</td>
-                    <td>
+                    <td onClick={() => setSelectedSwitchRequest(req)} style={{ cursor: 'pointer' }}>
                       <div style={{ fontWeight: 600 }}>{req.user?.full_name || '-'}</div>
                       <div className="muted" style={{ fontSize: 12 }}>{req.user?.phone || req.user?.email || '-'}</div>
                     </td>
                     <td>{req.company_name || '-'}</td>
                     <td className="muted">{req.category || '-'}</td>
                     <td className="muted" style={{ fontSize: 12 }}>{new Date(req.requested_at).toLocaleString('az-AZ')}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <button className="btn" onClick={() => setSelectedSwitchRequest(req)}>
+                        <Info size={14} />
+                        Ətraflı
+                      </button>
+                    </td>
                     <td style={{ textAlign: 'right' }}>
                       <div className="row" style={{ justifyContent: 'flex-end' }}>
-                        <button className="btn" onClick={() => setSelectedSwitchRequest(req)}>
-                          <Info size={14} />
-                          Ətraflı
-                        </button>
                         <button className="btn good" onClick={() => handleApproveSwitchClick(req)} disabled={processing}>Təsdiqlə</button>
                         <button className="btn danger" onClick={() => handleRejectSwitchClick(req)} disabled={processing}>Rədd et</button>
                       </div>
                     </td>
                   </tr>
                 ))}
-                {(!loading && items.length === 0) ? <tr><td colSpan="6" className="muted" style={{ padding: 40, textAlign: 'center' }}>Gözləyən sorğu yoxdur</td></tr> : null}
-                {loading ? <tr><td colSpan="6" className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
+                {(!loading && items.length === 0) ? <tr><td colSpan="7" className="muted" style={{ padding: 40, textAlign: 'center' }}>Gözləyən sorğu yoxdur</td></tr> : null}
+                {loading ? <tr><td colSpan="7" className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
               </tbody>
             </table>
           </div>
