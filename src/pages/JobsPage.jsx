@@ -322,6 +322,7 @@ export default function JobsPage() {
                 <th>Şirkət</th>
                 <th>Yaradan</th>
                 <th>Rəylər</th>
+                <th>Favorit</th>
                 <th>Tarix</th>
                 <th style={{ width: 300 }}>Əməliyyatlar</th>
               </tr>
@@ -347,6 +348,7 @@ export default function JobsPage() {
                       </span>
                     ) : '-'}
                   </td>
+                  <td><span className="pill info">{j.favorite_count || 0}</span></td>
                   <td className="muted">{new Date(j.created_at).toLocaleString('az-AZ')}</td>
                   <td>
                     <div className="row">
@@ -363,8 +365,8 @@ export default function JobsPage() {
                   </td>
                 </tr>
               ))}
-              {loading ? <tr><td colSpan="9" className="muted">Yüklənir…</td></tr> : null}
-              {!loading && items.length === 0 ? <tr><td colSpan="9" className="muted">Elan tapılmadı.</td></tr> : null}
+              {loading ? <tr><td colSpan="10" className="muted">Yüklənir…</td></tr> : null}
+              {!loading && items.length === 0 ? <tr><td colSpan="10" className="muted">Elan tapılmadı.</td></tr> : null}
             </tbody>
           </table>
         </div>
