@@ -72,7 +72,7 @@ export default function Layout({ title, children, subtitle }) {
     try {
       const { data } = await api.get('/admin/events', { params: { limit: 120 } })
       const all = data?.items || []
-      const requestEvents = all.filter((e) => e?.type === 'role_switch_request_pending' || e?.type === 'support_ticket')
+      const requestEvents = all.filter((e) => e?.type === 'role_switch_request_pending' || e?.type === 'support_ticket' || e?.type === 'job_create')
 
       const seenAt = Number(localStorage.getItem(seenKey) || 0)
       const unread = requestEvents.filter((e) => {

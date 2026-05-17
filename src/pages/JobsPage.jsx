@@ -263,6 +263,21 @@ export default function JobsPage() {
   }
 
   /* Existing code before this point */
+  const reject = async (id) => {
+    const reason = prompt('Rədd səbəbini yazın')
+    if (!reason) return
+    setSaving(true)
+    try {
+      await api.patch(`/admin/jobs/${id}`, { status: 'rejected', rejection_reason: reason })
+      toast.success('Elan rədd edildi')
+      await load()
+    } catch (e) {
+      toast.error(e?.response?.data?.error || e.message || 'Xəta baş verdi')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const approve = async (id) => {
     if (!confirm('Elanı təsdiqləmək istəyirsiniz?')) return
     setSaving(true)
@@ -308,7 +323,7 @@ export default function JobsPage() {
                 <th>Yaradan</th>
                 <th>Rəylər</th>
                 <th>Tarix</th>
-                <th style={{ width: 220 }}>Əməliyyatlar</th>
+                <th style={{ width: 300 }}>Əməliyyatlar</th>
               </tr>
             </thead>
             <tbody>
@@ -336,7 +351,10 @@ export default function JobsPage() {
                   <td>
                     <div className="row">
                       {j.status === 'pending' && (
-                        <button className="btn good" onClick={() => approve(j.id)} disabled={saving}>Təsdiq</button>
+                        <>
+                          <button className="btn good" onClick={() => approve(j.id)} disabled={saving}>Təsdiq</button>
+                          <button className="btn danger" onClick={() => reject(j.id)} disabled={saving}>Rədd et</button>
+                        </>
                       )}
                       <button className="btn" onClick={() => navigate(`/jobs/${j.id}`)}>Ətraflı</button>
                       <button className="btn ghost" onClick={() => openEdit(j)}>Düzəliş</button>

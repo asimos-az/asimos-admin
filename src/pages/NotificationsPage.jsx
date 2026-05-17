@@ -21,7 +21,7 @@ export default function NotificationsPage() {
         try {
             const { data } = await api.get('/admin/events', { params: { limit: 150 } })
             const all = data?.items || []
-            const requestEvents = all.filter((e) => e?.type === 'role_switch_request_pending' || e?.type === 'support_ticket')
+            const requestEvents = all.filter((e) => e?.type === 'role_switch_request_pending' || e?.type === 'support_ticket' || e?.type === 'job_create')
             setItems(requestEvents)
         } catch (e) {
             toast.error('Bildirişləri yükləmək mümkün olmadı')
@@ -79,18 +79,23 @@ export default function NotificationsPage() {
                                                         const isUnread = Number.isFinite(ts) && ts > seenAt
                                                         const isRoleSwitch = it.type === 'role_switch_request_pending'
                                                         const isSupport = it.type === 'support_ticket'
+                                                        const isJobCreate = it.type === 'job_create'
 
                                                         const title = isRoleSwitch
                                                             ? 'Yeni rol dəyişikliyi sorğusu'
                                                             : isSupport
                                                                 ? 'Yeni dəstək müraciəti'
-                                                                : it.type
+                                                                : isJobCreate
+                                                                    ? 'Yeni elan sorğusu'
+                                                                    : it.type
 
                                                         const body = isRoleSwitch
                                                             ? `${eventData?.companyName || 'Şirkət göstərilməyib'} • istifadəçi: ${eventData?.requestId || '-'}`
                                                             : isSupport
                                                                 ? `${eventData?.subject || 'Dəstək müraciəti'} • status: ${eventData?.status || '-'}`
-                                                                : JSON.stringify(eventData || {})
+                                                                : isJobCreate
+                                                                    ? `${eventData?.title || 'Yeni elan'} • ${eventData?.category || 'Kateqoriya yoxdur'}`
+                                                                    : JSON.stringify(eventData || {})
 
                             return (
                                 <div 
@@ -109,11 +114,11 @@ export default function NotificationsPage() {
                                         width: 40,
                                         height: 40,
                                         borderRadius: '50%',
-                                        background: isRoleSwitch ? '#DBEAFE' : (isSupport ? '#DCFCE7' : '#F3F4F6'),
+                                        background: isRoleSwitch ? '#DBEAFE' : (isSupport ? '#DCFCE7' : (isJobCreate ? '#FEF3C7' : '#F3F4F6')),
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        color: isRoleSwitch ? '#2563EB' : (isSupport ? '#16A34A' : '#6B7280')
+                                        color: isRoleSwitch ? '#2563EB' : (isSupport ? '#16A34A' : (isJobCreate ? '#D97706' : '#6B7280'))
                                     }}>
                                         {isRoleSwitch ? <Bell size={20} /> : (isSupport ? <MessageSquare size={20} /> : <AlertTriangle size={20} />)}
                                     </div>

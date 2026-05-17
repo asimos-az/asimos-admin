@@ -30,6 +30,8 @@ export default function JobDetailPage() {
     const [rejectionReason, setRejectionReason] = useState('')
     const [ratings, setRatings] = useState([])
     const [loadingRatings, setLoadingRatings] = useState(false)
+    const [editMode, setEditMode] = useState(false)
+    const [editForm, setEditForm] = useState({})
 
     useEffect(() => {
         load()
@@ -41,6 +43,15 @@ export default function JobDetailPage() {
             // Trying public endpoint first, it supports authUser so it should return data for admin too
             const { data } = await api.get(`/jobs/${id}`)
             setJob(data)
+            setEditForm({
+                title: data.title || '',
+                category: data.category || '',
+                wage: data.wage || '',
+                company_name: data.companyName || data.company_name || '',
+                image_url: data.imageUrl || data.image_url || '',
+                status: data.status || 'open',
+                description: data.description || ''
+            })
         } catch (e) {
             // If public fails (e.g. strict RLS), try admin list and filter (fallback) or generic error
             console.error(e)
@@ -71,6 +82,20 @@ export default function JobDetailPage() {
             toast.success('Status yeniləndi')
             await load()
             loadRatings()
+        } catch (e) {
+            toast.error(e?.response?.data?.error || e.message)
+        } finally {
+            setProcessing(false)
+        }
+    }
+
+    const saveEdit = async () => {
+        setProcessing(true)
+        try {
+            await api.patch(`/admin/jobs/${id}`, editForm)
+            toast.success('Elan redaktə edildi')
+            setEditMode(false)
+            await load()
         } catch (e) {
             toast.error(e?.response?.data?.error || e.message)
         } finally {
@@ -121,6 +146,25 @@ export default function JobDetailPage() {
                             <strong>Rədd səbəbi:</strong> {job.rejectionReason}
                         </div>
                     )}
+
+                    {editMode ? (
+                        <div className="card" style={{ marginBottom: 16, padding: 16, background: 'var(--bg1)' }}>
+                            <h3 style={{ fontSize: 16, marginTop: 0 }}>Elanı redaktə et</h3>
+                            <div className="formGrid">
+                                <div className="formRow"><div className="label">Başlıq</div><input className="input" value={editForm.title || ''} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} /></div>
+                                <div className="formRow"><div className="label">Kateqoriya</div><input className="input" value={editForm.category || ''} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} /></div>
+                                <div className="formRow"><div className="label">Maaş</div><input className="input" value={editForm.wage || ''} onChange={(e) => setEditForm({ ...editForm, wage: e.target.value })} /></div>
+                                <div className="formRow"><div className="label">Şirkət</div><input className="input" value={editForm.company_name || ''} onChange={(e) => setEditForm({ ...editForm, company_name: e.target.value })} /></div>
+                                <div className="formRow"><div className="label">Loqo / şəkil URL</div><input className="input" value={editForm.image_url || ''} onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })} /></div>
+                                <div className="formRow"><div className="label">Status</div><select className="select" value={editForm.status || 'open'} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}><option value="open">Aktiv</option><option value="pending">Gözləyir</option><option value="closed">Bağlı</option><option value="rejected">Rədd edilmiş</option><option value="draft">Draft</option></select></div>
+                                <div className="formRow" style={{ gridColumn: 'span 2' }}><div className="label">Təsvir</div><textarea className="input" rows={5} value={editForm.description || ''} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} /></div>
+                            </div>
+                            <div className="row" style={{ marginTop: 12, justifyContent: 'flex-end' }}>
+                                <button className="btn ghost" onClick={() => setEditMode(false)} disabled={processing}>Ləğv et</button>
+                                <button className="btn" onClick={saveEdit} disabled={processing}>Yadda saxla</button>
+                            </div>
+                        </div>
+                    ) : null}
 
                     <table className="table" style={{ marginTop: 0 }}>
                         <tbody>
@@ -206,6 +250,7 @@ export default function JobDetailPage() {
                     <div style={{ marginTop: 32, borderTop: '1px solid var(--stroke)', paddingTop: 16 }}>
                         <h3 style={{ fontSize: 16, marginBottom: 12 }}>Əməliyyatlar</h3>
                         <div className="row" style={{ gap: 12 }}>
+                            <button className="btn" onClick={() => setEditMode(true)} disabled={processing}>✏️ Redaktə et</button>
                             {job.status === 'pending' && (
                                 <>
                                     <button className="btn good" onClick={() => updateStatus('open')} disabled={processing}>✅ Təsdiqlə</button>
