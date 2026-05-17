@@ -46,6 +46,7 @@ export default function JobsPage() {
     starts_at: '',
     working_hours: '',
     published_at: '',
+    image_url: '',
   })
   const [employers, setEmployers] = useState([])
   const [categories, setCategories] = useState([])
@@ -100,6 +101,7 @@ export default function JobsPage() {
       starts_at: new Date().toISOString().split('T')[0],
       working_hours: '',
       published_at: '',
+      image_url: '',
     })
     setCreating(true)
   }
@@ -130,6 +132,7 @@ export default function JobsPage() {
         starts_at: createForm.starts_at || null,
         working_hours: createForm.working_hours || null,
         published_at: createForm.published_at || null,
+        image_url: createForm.image_url || null,
         status: 'open',
       }
       await api.post('/admin/jobs', payload)
@@ -208,6 +211,7 @@ export default function JobsPage() {
       starts_at: j.starts_at ? new Date(j.starts_at).toISOString().split('T')[0] : '',
       working_hours: j.working_hours || '',
       published_at: j.published_at ? new Date(j.published_at).toISOString().slice(0, 16) : '',
+      image_url: j.image_url || j.imageUrl || '',
     })
   }
 
@@ -234,6 +238,7 @@ export default function JobsPage() {
         starts_at: selected.starts_at || null,
         working_hours: selected.working_hours || null,
         published_at: selected.published_at || null,
+        image_url: selected.image_url || null,
       }
       await api.patch(`/admin/jobs/${selected.id}`, patch)
       toast.success('Elan yeniləndi')
@@ -399,6 +404,11 @@ export default function JobsPage() {
             <div className="label">Şirkət adı</div>
             <input className="input" value={selected?.company_name || ''} onChange={(e) => setSelected({ ...selected, company_name: e.target.value })} />
           </div>
+          <div className="formRow">
+            <div className="label">Loqo / şəkil URL</div>
+            <input className="input" value={selected?.image_url || ''} onChange={(e) => setSelected({ ...selected, image_url: e.target.value })} placeholder="https://..." />
+            {selected?.image_url ? <img src={selected.image_url} alt="" style={{ width: 54, height: 54, objectFit: 'contain', marginTop: 8, borderRadius: 12, border: '1px solid #e5e7eb' }} /> : null}
+          </div>
 
           <div className="formRow">
             <div className="label">Gündəlik iş?</div>
@@ -527,6 +537,11 @@ export default function JobsPage() {
           <div className="formRow">
             <div className="label">Şirkət adı</div>
             <input className="input" value={createForm.company_name} onChange={(e) => setCreateForm({ ...createForm, company_name: e.target.value })} />
+          </div>
+          <div className="formRow">
+            <div className="label">Loqo / şəkil URL</div>
+            <input className="input" value={createForm.image_url} onChange={(e) => setCreateForm({ ...createForm, image_url: e.target.value })} placeholder="https://..." />
+            {createForm.image_url ? <img src={createForm.image_url} alt="" style={{ width: 54, height: 54, objectFit: 'contain', marginTop: 8, borderRadius: 12, border: '1px solid #e5e7eb' }} /> : null}
           </div>
           <div className="formRow">
             <div className="label">Maaş</div>

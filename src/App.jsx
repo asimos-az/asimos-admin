@@ -13,6 +13,7 @@ import MapPage from './pages/MapPage.jsx'
 import ContentPage from './pages/ContentPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import NotificationsPage from './pages/NotificationsPage.jsx'
+import SettingsPage from './pages/SettingsPage.jsx'
 
 export default function App() {
   return (
@@ -100,6 +101,15 @@ export default function App() {
           element={
             <RequireAuth>
               <NotificationsPage />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <RequireAuth>
+              <SettingsPage />
             </RequireAuth>
           }
         />
