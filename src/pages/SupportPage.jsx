@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout.jsx'
-import { api } from '../lib/api'
+import { api, API_BASE_URL } from '../lib/api'
+import { getToken } from '../lib/auth'
+import { io } from 'socket.io-client'
 import toast from 'react-hot-toast'
 import { MessageSquare, User, Search, Send, CheckCircle, XCircle, Trash2 } from 'lucide-react'
 
@@ -15,22 +17,31 @@ export default function SupportPage() {
     useEffect(() => {
         loadList()
 
-        // Real-time polling
+        const socket = io(API_BASE_URL, {
+            transports: ['websocket', 'polling'],
+            auth: { adminToken: getToken() },
+            reconnection: true,
+            reconnectionAttempts: 20,
+            reconnectionDelay: 800,
+        })
+
+        socket.on('support:updated', (payload) => {
+            loadList(true)
+            if (payload?.ticketId && selectedTicket?.id === payload.ticketId) {
+                selectTicket({ id: payload.ticketId }, true)
+            }
+        })
+
         const interval = setInterval(() => {
             if (!loading) loadList(true)
-        }, 3000)
+        }, 15000)
 
-        return () => clearInterval(interval)
-    }, [])
-
-    // Add a ref or effect to keep selectedTicket updated in the background
-    useEffect(() => {
-        if (!selectedTicket) return
-        const interval = setInterval(() => {
-            selectTicket(selectedTicket, true)
-        }, 3000)
-        return () => clearInterval(interval)
+        return () => {
+            socket.disconnect()
+            clearInterval(interval)
+        }
     }, [selectedTicket?.id])
+
 
     async function loadList(silent = false) {
         try {
