@@ -21,7 +21,7 @@ export default function NotificationsPage() {
         try {
             const { data } = await api.get('/admin/events', { params: { limit: 150 } })
             const all = data?.items || []
-            const requestEvents = all.filter((e) => e?.type === 'role_switch_request_pending' || e?.type === 'support_ticket' || e?.type === 'job_create')
+            const requestEvents = all.filter((e) => ['role_switch_request_pending','support_ticket','job_create','job_approval_pending','job_edit_pending','job_publish_pending'].includes(e?.type))
             setItems(requestEvents)
         } catch (e) {
             toast.error('Bildirişləri yükləmək mümkün olmadı')
@@ -79,14 +79,14 @@ export default function NotificationsPage() {
                                                         const isUnread = Number.isFinite(ts) && ts > seenAt
                                                         const isRoleSwitch = it.type === 'role_switch_request_pending'
                                                         const isSupport = it.type === 'support_ticket'
-                                                        const isJobCreate = it.type === 'job_create'
+                                                        const isJobCreate = ['job_create','job_approval_pending','job_edit_pending','job_publish_pending'].includes(it.type)
 
                                                         const title = isRoleSwitch
                                                             ? 'Yeni rol dəyişikliyi sorğusu'
                                                             : isSupport
                                                                 ? 'Yeni dəstək müraciəti'
                                                                 : isJobCreate
-                                                                    ? 'Yeni elan sorğusu'
+                                                                    ? (it.type === 'job_edit_pending' ? 'Elan redaktəsi təsdiq gözləyir' : it.type === 'job_publish_pending' ? 'Elan aktivləşdirmə sorğusu' : 'Yeni elan sorğusu')
                                                                     : it.type
 
                                                         const body = isRoleSwitch
@@ -94,7 +94,7 @@ export default function NotificationsPage() {
                                                             : isSupport
                                                                 ? `${eventData?.subject || 'Dəstək müraciəti'} • status: ${eventData?.status || '-'}`
                                                                 : isJobCreate
-                                                                    ? `${eventData?.title || 'Yeni elan'} • ${eventData?.category || 'Kateqoriya yoxdur'}`
+                                                                    ? `${eventData?.title || 'Yeni elan'} • ${eventData?.category || 'Kateqoriya yoxdur'} • ${eventData?.status || 'pending'}`
                                                                     : JSON.stringify(eventData || {})
 
                             return (
