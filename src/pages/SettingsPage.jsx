@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { api } from '../lib/api';
-import { AlertCircle, CheckCircle2, Facebook, Instagram, Linkedin, Loader2, Save, Send, Settings as SettingsIcon } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Facebook, Instagram, Linkedin, Loader2, MessageCircle, Save, Send, Settings as SettingsIcon } from 'lucide-react';
 
 const defaultLinks = {
   facebook: '',
@@ -10,6 +10,7 @@ const defaultLinks = {
   linkedin: '',
   twitter: '',
   telegram: '',
+  whatsapp: '',
 };
 
 const defaultFilterOptions = {
@@ -25,6 +26,7 @@ const fields = [
   { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://www.linkedin.com/company/asimos', icon: Linkedin },
   { key: 'twitter', label: 'Twitter / X', placeholder: 'https://x.com/asimos_az', icon: SettingsIcon },
   { key: 'telegram', label: 'Telegram', placeholder: 'https://t.me/asimos_az', icon: Send },
+  { key: 'whatsapp', label: 'WhatsApp', placeholder: 'https://wa.me/994501234567', icon: MessageCircle },
 ];
 
 function optionsToText(items = [], salary = false) {
