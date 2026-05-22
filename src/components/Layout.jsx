@@ -49,23 +49,7 @@ export default function Layout({ title, children, subtitle }) {
   }, [])
 
   const playNotifSound = () => {
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext
-      if (!Ctx) return
-      const ctx = new Ctx()
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.type = 'sine'
-      osc.frequency.value = 920
-      gain.gain.value = 0.06
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.start()
-      setTimeout(() => {
-        osc.stop()
-        ctx.close().catch(() => {})
-      }, 130)
-    } catch {}
+    return
   }
 
   const loadUnreadCount = async () => {

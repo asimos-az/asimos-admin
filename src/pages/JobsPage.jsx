@@ -49,6 +49,8 @@ export default function JobsPage() {
     image_url: '',
   })
   const [employers, setEmployers] = useState([])
+  const [employersLoading, setEmployersLoading] = useState(false)
+  const [employersError, setEmployersError] = useState('')
   const [categories, setCategories] = useState([])
   const [saving, setSaving] = useState(false)
 
@@ -147,15 +149,22 @@ export default function JobsPage() {
   }
 
   const loadMeta = async () => {
+    setEmployersLoading(true)
+    setEmployersError('')
     try {
       const [uRes, cRes] = await Promise.all([
-        api.get('/admin/users', { params: { limit: 500 } }),
+        api.get('/admin/employers'),
         api.get('/categories'),
       ])
-      const users = uRes?.data?.items || []
-      setEmployers(users.filter((x) => String(x.role || '').toLowerCase() === 'employer'))
+      const list = uRes?.data?.items || []
+      setEmployers(list)
       setCategories((cRes?.data?.items || []).map((x) => x.name))
-    } catch { }
+      if (!list.length) setEmployersError('DB-də işçi axtaran hesab tapılmadı. İstifadəçi rolunu yoxlayın və ya + Employer ilə yeni hesab yaradın.')
+    } catch (e) {
+      setEmployersError(e?.response?.data?.error || e.message || 'Employer siyahısı yüklənmədi')
+    } finally {
+      setEmployersLoading(false)
+    }
   }
 
   const openCreateEmployer = () => {
@@ -531,15 +540,16 @@ export default function JobsPage() {
           <div className="formRow" style={{ gridColumn: 'span 2' }}>
             <div className="label">Employer (elan sahibi)</div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <select className="select" value={createForm.created_by} onChange={(e) => setCreateForm({ ...createForm, created_by: e.target.value })} style={{ flex: 1 }}>
-                <option value="">Seçin…</option>
+              <select className="select" value={createForm.created_by} onChange={(e) => setCreateForm({ ...createForm, created_by: e.target.value })} style={{ flex: 1 }} disabled={employersLoading}>
+                <option value="">{employersLoading ? 'Yüklənir…' : 'Seçin…'}</option>
                 {(employers || []).map((u) => (
-                  <option key={u.id} value={u.id}>{u.full_name || u.email || u.id}</option>
+                  <option key={u.id} value={u.id}>{[u.full_name || u.company_name || u.phone || 'Employer', u.email, u.role].filter(Boolean).join(' • ')}</option>
                 ))}
               </select>
               <button className="btn ghost" type="button" onClick={openCreateEmployer}>+ Employer</button>
             </div>
-            <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>Qeyd: Admin elanı mütləq bir employer hesabına bağlamalıdır.</div>
+            {employersError ? <div className="alert error" style={{ marginTop: 8 }}>{employersError}</div> : null}
+            <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>Qeyd: Admin elanı mütləq bir işçi axtaran / employer hesabına bağlamalıdır. Siyahıda {employers.length} hesab var.</div>
           </div>
 
           <div className="formRow" style={{ gridColumn: 'span 2' }}>
