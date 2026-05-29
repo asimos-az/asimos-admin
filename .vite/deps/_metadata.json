@@ -2,19 +2,61 @@
   "hash": "f21c9777",
   "configHash": "a04c8052",
   "lockfileHash": "be3eed07",
-  "browserHash": "b6ed976f",
+  "browserHash": "2641f8c8",
   "optimized": {
-    "axios": {
-      "src": "../../node_modules/axios/index.js",
-      "file": "axios.js",
-      "fileHash": "bde05013",
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "4ef20a4e",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "7af90b55",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "530956fe",
       "needsInterop": false
     },
     "leaflet": {
       "src": "../../node_modules/leaflet/dist/leaflet-src.js",
       "file": "leaflet.js",
-      "fileHash": "e426549d",
+      "fileHash": "cf93ff41",
       "needsInterop": true
+    },
+    "react-hot-toast": {
+      "src": "../../node_modules/react-hot-toast/dist/index.mjs",
+      "file": "react-hot-toast.js",
+      "fileHash": "94ddc479",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "59cdd042",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "2024f611",
+      "needsInterop": false
+    },
+    "socket.io-client": {
+      "src": "../../node_modules/socket.io-client/build/esm/index.js",
+      "file": "socket__io-client.js",
+      "fileHash": "34e4aa8a",
+      "needsInterop": false
+    },
+    "react-leaflet": {
+      "src": "../../node_modules/react-leaflet/lib/index.js",
+      "file": "react-leaflet.js",
+      "fileHash": "f3fd85e7",
+      "needsInterop": false
     },
     "leaflet.heat": {
       "src": "../../node_modules/leaflet.heat/dist/leaflet-heat.js",
@@ -22,58 +64,16 @@
       "fileHash": "197b2bef",
       "needsInterop": true
     },
-    "lucide-react": {
-      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
-      "file": "lucide-react.js",
-      "fileHash": "97a9063e",
-      "needsInterop": false
-    },
-    "react": {
-      "src": "../../node_modules/react/index.js",
-      "file": "react.js",
-      "fileHash": "eb842b25",
-      "needsInterop": true
-    },
-    "react-dom/client": {
-      "src": "../../node_modules/react-dom/client.js",
-      "file": "react-dom_client.js",
-      "fileHash": "f52f097d",
-      "needsInterop": true
-    },
-    "react-hot-toast": {
-      "src": "../../node_modules/react-hot-toast/dist/index.mjs",
-      "file": "react-hot-toast.js",
-      "fileHash": "7b0de71c",
-      "needsInterop": false
-    },
-    "react-leaflet": {
-      "src": "../../node_modules/react-leaflet/lib/index.js",
-      "file": "react-leaflet.js",
-      "fileHash": "1626fc41",
-      "needsInterop": false
-    },
     "react-quill": {
       "src": "../../node_modules/react-quill/lib/index.js",
       "file": "react-quill.js",
-      "fileHash": "f0f38705",
+      "fileHash": "7217712a",
       "needsInterop": true
-    },
-    "react-router-dom": {
-      "src": "../../node_modules/react-router-dom/dist/index.js",
-      "file": "react-router-dom.js",
-      "fileHash": "baf29991",
-      "needsInterop": false
     },
     "recharts": {
       "src": "../../node_modules/recharts/es6/index.js",
       "file": "recharts.js",
-      "fileHash": "5da2a44a",
-      "needsInterop": false
-    },
-    "socket.io-client": {
-      "src": "../../node_modules/socket.io-client/build/esm/index.js",
-      "file": "socket__io-client.js",
-      "fileHash": "ad5e9098",
+      "fileHash": "cf16f4d4",
       "needsInterop": false
     }
   },
@@ -84,11 +84,11 @@
     "chunk-TNTPHDQH": {
       "file": "chunk-TNTPHDQH.js"
     },
-    "chunk-32E4H3EV": {
-      "file": "chunk-32E4H3EV.js"
-    },
     "chunk-GKVACACG": {
       "file": "chunk-GKVACACG.js"
+    },
+    "chunk-32E4H3EV": {
+      "file": "chunk-32E4H3EV.js"
     },
     "chunk-G3PMV62Z": {
       "file": "chunk-G3PMV62Z.js"

@@ -54,6 +54,18 @@ export default function JobsPage() {
   const [categories, setCategories] = useState([])
   const [saving, setSaving] = useState(false)
 
+  const applyEmployerToCreateForm = (employerId) => {
+    const employer = (employers || []).find((item) => String(item.id) === String(employerId))
+    setCreateForm((prev) => ({
+      ...prev,
+      created_by: employerId,
+      company_name: employer?.company_name || employer?.companyName || prev.company_name || '',
+      image_url: employer?.logo_url || employer?.logoUrl || employer?.profileLogoUrl || prev.image_url || '',
+      whatsapp: employer?.phone || prev.whatsapp || '+994',
+      contact_phone: employer?.phone || prev.contact_phone || '+994',
+    }))
+  }
+
   const [creatingEmployer, setCreatingEmployer] = useState(false)
   const [employerForm, setEmployerForm] = useState({
     full_name: '',
@@ -540,10 +552,10 @@ export default function JobsPage() {
           <div className="formRow" style={{ gridColumn: 'span 2' }}>
             <div className="label">Employer (elan sahibi)</div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <select className="select" value={createForm.created_by} onChange={(e) => setCreateForm({ ...createForm, created_by: e.target.value })} style={{ flex: 1 }} disabled={employersLoading}>
+              <select className="select" value={createForm.created_by} onChange={(e) => applyEmployerToCreateForm(e.target.value)} style={{ flex: 1 }} disabled={employersLoading}>
                 <option value="">{employersLoading ? 'Yüklənir…' : 'Seçin…'}</option>
                 {(employers || []).map((u) => (
-                  <option key={u.id} value={u.id}>{[u.full_name || u.company_name || u.phone || 'Employer', u.email, u.role].filter(Boolean).join(' • ')}</option>
+                  <option key={u.id} value={u.id}>{[u.full_name || u.company_name || u.phone || 'Employer', u.email, u.role, u.logo_url ? 'logo var' : null].filter(Boolean).join(' • ')}</option>
                 ))}
               </select>
               <button className="btn ghost" type="button" onClick={openCreateEmployer}>+ Employer</button>
