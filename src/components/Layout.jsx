@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Bell,
   Settings,
+  Megaphone,
 } from 'lucide-react'
 import { clearToken } from '../lib/auth'
 import { api } from '../lib/api'
@@ -110,6 +111,7 @@ export default function Layout({ title, children, subtitle }) {
           <NavItem to="/map" icon={Map} label="Xəritə" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/events" icon={Activity} label="Proseslər" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/settings" icon={Settings} label="Ayarlar" onClick={mobile ? closeDrawer : undefined} />
+          <NavItem to="/sponsored-card" icon={Megaphone} label="Pin kartlar" onClick={mobile ? closeDrawer : undefined} />
         </nav>
       </div>
 
