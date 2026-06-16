@@ -15,6 +15,7 @@ import SupportPage from './pages/SupportPage.jsx'
 import NotificationsPage from './pages/NotificationsPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
 import SponsoredCardPage from './pages/SponsoredCardPage.jsx'
+import HomeWidgetsPage from './pages/HomeWidgetsPage.jsx'
 
 export default function App() {
   return (
@@ -121,6 +122,15 @@ export default function App() {
           element={
             <RequireAuth>
               <SponsoredCardPage />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/home-widgets"
+          element={
+            <RequireAuth>
+              <HomeWidgetsPage />
             </RequireAuth>
           }
         />
