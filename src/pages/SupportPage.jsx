@@ -6,13 +6,14 @@ import { io } from 'socket.io-client'
 import toast from 'react-hot-toast'
 import { MessageSquare, User, Search, Send, CheckCircle, XCircle, Trash2 } from 'lucide-react'
 
-export default function SupportPage() {
+export default function SupportPage({ defaultFilter = 'all', pageTitle = 'Dəstək' } = {}) {
     const [tickets, setTickets] = useState([])
     const [loading, setLoading] = useState(false)
     const [selectedTicket, setSelectedTicket] = useState(null)
     const [replyMsg, setReplyMsg] = useState('')
     const [replying, setReplying] = useState(false)
     const [q, setQ] = useState('')
+    const [activeFilter, setActiveFilter] = useState(defaultFilter)
 
     useEffect(() => {
         loadList()
@@ -99,18 +100,56 @@ export default function SupportPage() {
         }
     }
 
-    const filteredTickets = tickets.filter(t =>
-        (t.subject || '').toLowerCase().includes(q.toLowerCase()) ||
-        (t.message || '').toLowerCase().includes(q.toLowerCase())
-    )
+    const isChangeRequest = (ticket) => {
+        const text = `${ticket?.subject || ''} ${ticket?.message || ''}`.toLowerCase()
+        return text.includes('dəyişiklik sorğusu') || text.includes('deyisiklik sorgusu') || text.includes('işəgötürən panelindən dəyişiklik') || text.includes('isegoturen panelinden deyisiklik')
+    }
+
+    const changeRequestCount = tickets.filter(isChangeRequest).length
+    const supportCount = Math.max(0, tickets.length - changeRequestCount)
+
+    const filteredTickets = tickets.filter(t => {
+        if (activeFilter === 'change' && !isChangeRequest(t)) return false
+        if (activeFilter === 'support' && isChangeRequest(t)) return false
+
+        const query = q.toLowerCase()
+        return (t.subject || '').toLowerCase().includes(query) ||
+            (t.message || '').toLowerCase().includes(query)
+    })
 
     return (
-        <Layout title="Dəstək">
+        <Layout title={pageTitle} subtitle={activeFilter === 'change' ? 'İşəgötürən panelindən gələn şirkət məlumatı dəyişiklik sorğuları.' : undefined}>
             <div className="card" style={{ height: 'calc(100vh - 120px)', padding: 0, display: 'flex', overflow: 'hidden' }}>
 
                 {/* Left Sidebar: Ticket List */}
                 <div style={{ width: 350, borderRight: '1px solid var(--stroke)', display: 'flex', flexDirection: 'column', background: 'var(--bg0)' }}>
-                    <div style={{ padding: 16, borderBottom: '1px solid var(--stroke)' }}>
+                    <div style={{ padding: 16, borderBottom: '1px solid var(--stroke)', display: 'grid', gap: 12 }}>
+                        <div className="supportFilterTabs" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                            <button
+                                type="button"
+                                className={`pill ${activeFilter === 'all' ? 'good' : ''}`}
+                                onClick={() => setActiveFilter('all')}
+                                style={{ border: 0, cursor: 'pointer' }}
+                            >
+                                Hamısı ({tickets.length})
+                            </button>
+                            <button
+                                type="button"
+                                className={`pill ${activeFilter === 'change' ? 'good' : ''}`}
+                                onClick={() => setActiveFilter('change')}
+                                style={{ border: 0, cursor: 'pointer' }}
+                            >
+                                Dəyişiklik sorğuları ({changeRequestCount})
+                            </button>
+                            <button
+                                type="button"
+                                className={`pill ${activeFilter === 'support' ? 'warn' : ''}`}
+                                onClick={() => setActiveFilter('support')}
+                                style={{ border: 0, cursor: 'pointer' }}
+                            >
+                                Dəstək ({supportCount})
+                            </button>
+                        </div>
                         <div className="search" style={{ width: '100%' }}>
                             <Search size={16} />
                             <input
@@ -144,8 +183,9 @@ export default function SupportPage() {
                                     </div>
                                     <div className="muted" style={{ fontSize: 11 }}>{new Date(t.created_at).toLocaleDateString()}</div>
                                 </div>
-                                <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {t.subject}
+                                <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    {isChangeRequest(t) ? <span className="pill good" style={{ fontSize: 10, padding: '2px 7px', height: 'auto' }}>Dəyişiklik</span> : null}
+                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.subject}</span>
                                 </div>
                                 <div className="muted" style={{ fontSize: 12, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {t.message}

@@ -12,6 +12,7 @@ import CategoriesPage from './pages/CategoriesPage.jsx'
 import MapPage from './pages/MapPage.jsx'
 import ContentPage from './pages/ContentPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
+import ChangeRequestsPage from './pages/ChangeRequestsPage.jsx'
 import NotificationsPage from './pages/NotificationsPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
 import SponsoredCardPage from './pages/SponsoredCardPage.jsx'
@@ -98,6 +99,16 @@ export default function App() {
             </RequireAuth>
           }
         />
+
+        <Route
+          path="/change-requests"
+          element={
+            <RequireAuth>
+              <ChangeRequestsPage />
+            </RequireAuth>
+          }
+        />
+
         <Route
           path="/notifications"
           element={
