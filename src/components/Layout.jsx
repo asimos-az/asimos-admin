@@ -58,7 +58,7 @@ export default function Layout({ title, children, subtitle }) {
     try {
       const { data } = await api.get('/admin/events', { params: { limit: 120 } })
       const all = data?.items || []
-      const requestEvents = all.filter((e) => ['role_switch_request_pending','support_ticket','job_create','job_approval_pending','job_edit_pending','job_publish_pending'].includes(e?.type))
+      const requestEvents = all.filter((e) => ['role_switch_request_pending','support_ticket','profile_change_request','profile_change_request_approved','profile_change_request_rejected','job_create','job_approval_pending','job_edit_pending','job_publish_pending'].includes(e?.type))
 
       const seenAt = Number(localStorage.getItem(seenKey) || 0)
       const unread = requestEvents.filter((e) => {
