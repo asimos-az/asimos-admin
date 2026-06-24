@@ -17,9 +17,31 @@ const formatRadius = (m) => {
   return `${num} m`;
 };
 
+const jobStatusTabs = [
+  ['all', 'Hamısı'],
+  ['open', 'Aktiv'],
+  ['pending', 'Gözləyir'],
+  ['draft', 'Qaralama'],
+  ['closed', 'Deaktiv'],
+  ['rejected', 'Rədd'],
+  ['deleted', 'Silinmiş'],
+];
+
+function statusPill(job) {
+  const status = String(job?.status || 'open').toLowerCase();
+  if (status === 'pending') return <span className="pill warn">Gözləyir</span>;
+  if (status === 'draft') return <span className="pill info">Qaralama</span>;
+  if (status === 'closed' || status === 'inactive') return <span className="pill">Deaktiv</span>;
+  if (status === 'rejected') return <span className="pill bad">Rədd</span>;
+  if (status === 'deleted') return <span className="pill bad">Silinmiş</span>;
+  if (job?.published_at && new Date(job.published_at) > new Date()) return <span className="pill info">Planlaşdırılıb</span>;
+  return <span className="pill good">Aktiv</span>;
+}
+
 export default function JobsPage() {
   const navigate = useNavigate()
   const [q, setQ] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
@@ -79,7 +101,7 @@ export default function JobsPage() {
     setError('')
     setLoading(true)
     try {
-      const { data } = await api.get('/admin/jobs', { params: { q, limit: 50 } })
+      const { data } = await api.get('/admin/jobs', { params: { q, status: statusFilter === 'all' ? undefined : statusFilter, limit: 50 } })
       setItems(data?.items || [])
     } catch (e) {
       setError(e?.response?.data?.error || e.message || 'Yüklənmə zamanı xəta baş verdi')
@@ -88,7 +110,7 @@ export default function JobsPage() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [statusFilter])
 
   useEffect(() => {
     // preload meta for create form
@@ -273,10 +295,10 @@ export default function JobsPage() {
   }
 
   const del = async (jobId) => {
-    if (!confirm('Bu elanı silmək istəyirsiniz?')) return
+    if (!confirm('Bu elanı silinmiş elanlara göndərmək istəyirsiniz?')) return
     try {
       await api.delete(`/admin/jobs/${jobId}`)
-      toast.success('Elan silindi')
+      toast.success('Elan silinmiş elanlara göndərildi')
       await load()
     } catch (e) {
       toast.error(e?.response?.data?.error || e.message || 'Silmək alınmadı')
@@ -330,6 +352,19 @@ export default function JobsPage() {
             <div className="muted">Göstərilir: {items.length}</div>
           </div>
         </div>
+        <div className="row" style={{ gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
+          {jobStatusTabs.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={`btn ${statusFilter === value ? 'good' : 'ghost'}`}
+              onClick={() => { setStatusFilter(value); setCurrentPage(1); }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {error ? <div className="pill bad" style={{ marginTop: 12 }}>{error}</div> : null}
 
         <div className="tableWrap" style={{ marginTop: 12 }}>
@@ -352,10 +387,7 @@ export default function JobsPage() {
               {paginatedItems.map((j) => (
                 <tr key={j.id}>
                   <td>
-                    {j.status === 'pending' ? <span className="pill warn">Gözləyir</span> :
-                      j.status === 'closed' ? <span className="pill">Bağlı</span> :
-                        (j.published_at && new Date(j.published_at) > new Date()) ? <span className="pill info">Planlaşdırılıb</span> :
-                          <span className="pill good">Aktiv</span>}
+{statusPill(j)}
                   </td>
                   <td style={{ fontWeight: 700 }}>{j.title}</td>
                   <td className="muted">{j.category || '-'}</td>
@@ -426,7 +458,10 @@ export default function JobsPage() {
             <select className="select" value={selected?.status || 'open'} onChange={(e) => setSelected({ ...selected, status: e.target.value })}>
               <option value="open">Aktiv (Open)</option>
               <option value="pending">Gözləyir (Pending)</option>
-              <option value="closed">Bağlı (Closed)</option>
+              <option value="draft">Qaralama (Draft)</option>
+              <option value="closed">Deaktiv (Closed)</option>
+              <option value="rejected">Rədd (Rejected)</option>
+              <option value="deleted">Silinmiş (Deleted)</option>
             </select>
           </div>
 
