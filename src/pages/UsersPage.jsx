@@ -79,7 +79,7 @@ export default function UsersPage() {
       type: 'approveSwitch',
       id: req.id,
       title: 'Rol dəyişikliyini təsdiqlə',
-      message: `"${req.user?.full_name || req.user?.phone || req.user_id}" istifadəçisinin işçi axtarana keçməsini təsdiqləmək istəyirsiniz? (${req.company_name})`
+      message: `"${req.user?.full_name || req.user?.phone || req.user_id}" istifadəçisinin işəgötürən profilinə keçməsini təsdiqləmək istəyirsiniz? Şirkət: ${req.company_name || "-"}, Kateqoriya: ${req.category || "-"}, VÖEN: ${req.voen || "-"}`
     })
     setRejectNote('')
     setConfirmOpen(true)
@@ -195,7 +195,8 @@ export default function UsersPage() {
                   <th style={{ width: 60 }}>#</th>
                   <th>İstifadəçi</th>
                   <th>Şirkət</th>
-                  <th>Sahə</th>
+                  <th>Kateqoriya</th>
+                  <th>VÖEN</th>
                   <th>Tarix</th>
                   <th style={{ textAlign: 'center' }}>Ətraflı</th>
                   <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
@@ -211,6 +212,7 @@ export default function UsersPage() {
                     </td>
                     <td>{req.company_name || '-'}</td>
                     <td className="muted">{req.category || '-'}</td>
+                    <td className="mono">{req.voen || '-'}</td>
                     <td className="muted" style={{ fontSize: 12 }}>{new Date(req.requested_at).toLocaleString('az-AZ')}</td>
                     <td style={{ textAlign: 'center' }}>
                       <button className="btn" onClick={() => setSelectedSwitchRequest(req)}>
@@ -226,8 +228,8 @@ export default function UsersPage() {
                     </td>
                   </tr>
                 ))}
-                {(!loading && items.length === 0) ? <tr><td colSpan="7" className="muted" style={{ padding: 40, textAlign: 'center' }}>Gözləyən sorğu yoxdur</td></tr> : null}
-                {loading ? <tr><td colSpan="7" className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
+                {(!loading && items.length === 0) ? <tr><td colSpan="8" className="muted" style={{ padding: 40, textAlign: 'center' }}>Gözləyən sorğu yoxdur</td></tr> : null}
+                {loading ? <tr><td colSpan="8" className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
               </tbody>
             </table>
           </div>
