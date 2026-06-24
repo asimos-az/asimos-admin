@@ -487,10 +487,10 @@ export default function JobsPage() {
           </div>
 
           <div className="formRow">
-            <div className="label">Gündəlik iş?</div>
-            <select className="select" value={selected?.is_daily ? 'true' : 'false'} onChange={(e) => setSelected({ ...selected, is_daily: e.target.value === 'true' })}>
-              <option value="false">Xeyr</option>
-              <option value="true">Bəli</option>
+            <div className="label">İş növü</div>
+            <select className="select" value={selected?.is_daily ? 'true' : 'false'} onChange={(e) => { const nextIsDaily = e.target.value === 'true'; setSelected({ ...selected, is_daily: nextIsDaily, job_type: nextIsDaily ? 'temporary' : 'permanent', duration_days: nextIsDaily ? (selected?.duration_days || 1) : '', starts_at: nextIsDaily ? selected?.starts_at : '' }); }}>
+              <option value="false">Daimi iş</option>
+              <option value="true">Günəmuzd</option>
             </select>
           </div>
 
@@ -638,10 +638,10 @@ export default function JobsPage() {
             <input className="input" value={createForm.contact_link} onChange={(e) => setCreateForm({ ...createForm, contact_link: e.target.value })} />
           </div>
           <div className="formRow">
-            <div className="label">Gündəlik iş?</div>
-            <select className="select" value={createForm.is_daily ? 'true' : 'false'} onChange={(e) => setCreateForm({ ...createForm, is_daily: e.target.value === 'true' })}>
-              <option value="false">Xeyr</option>
-              <option value="true">Bəli</option>
+            <div className="label">İş növü</div>
+            <select className="select" value={createForm.is_daily ? 'true' : 'false'} onChange={(e) => { const nextIsDaily = e.target.value === 'true'; setCreateForm({ ...createForm, is_daily: nextIsDaily, job_type: nextIsDaily ? 'temporary' : 'permanent', duration_days: nextIsDaily ? (createForm.duration_days || 1) : '', starts_at: nextIsDaily ? createForm.starts_at : '' }); }}>
+              <option value="false">Daimi iş</option>
+              <option value="true">Günəmuzd</option>
             </select>
           </div>
 

@@ -31,6 +31,13 @@ export default function UsersPage() {
 
   const paginatedItems = items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
+  const formatDate = (value) => {
+    if (!value) return '-'
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return '-'
+    return date.toLocaleString('az-AZ')
+  }
+
   const load = async (roleOverride) => {
     setError('')
     setLoading(true)
@@ -213,7 +220,7 @@ export default function UsersPage() {
                     <td>{req.company_name || '-'}</td>
                     <td className="muted">{req.category || '-'}</td>
                     <td className="mono">{req.voen || '-'}</td>
-                    <td className="muted" style={{ fontSize: 12 }}>{new Date(req.requested_at).toLocaleString('az-AZ')}</td>
+                    <td className="muted" style={{ fontSize: 12 }}>{formatDate(req.requested_at || req.created_at || req.inserted_at)}</td>
                     <td style={{ textAlign: 'center' }}>
                       <button className="btn" onClick={() => setSelectedSwitchRequest(req)}>
                         <Info size={14} />
@@ -389,7 +396,7 @@ export default function UsersPage() {
             </div>
             <div className="formRow">
               <div className="label"><Calendar size={12} style={{ marginRight: 4 }} /> Sorğu tarixi</div>
-              <div className="muted">{selectedSwitchRequest.requested_at ? new Date(selectedSwitchRequest.requested_at).toLocaleString('az-AZ') : '-'}</div>
+              <div className="muted">{formatDate(selectedSwitchRequest.requested_at || selectedSwitchRequest.created_at || selectedSwitchRequest.inserted_at)}</div>
             </div>
             <div className="formRow">
               <div className="label">UUID</div>
