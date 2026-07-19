@@ -47,12 +47,6 @@ export default function JobDetailPage() {
                 title: data.title || '',
                 category: data.category || '',
                 wage: data.wage || '',
-                contact_email: data.contactEmail || data.contact_email || data.email || '',
-                phone: data.phone || data.contact_phone || '',
-                whatsapp: data.whatsapp || '',
-                job_level: data.jobLevel || data.job_level || '',
-                start_time: data.startTime || data.start_time || '',
-                end_time: data.endTime || data.end_time || '',
                 company_name: data.companyName || data.company_name || '',
                 image_url: data.imageUrl || data.image_url || '',
                 status: data.status || 'open',
@@ -166,12 +160,6 @@ export default function JobDetailPage() {
                                 <div className="formRow"><div className="label">Başlıq</div><input className="input" value={editForm.title || ''} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} /></div>
                                 <div className="formRow"><div className="label">Kateqoriya</div><input className="input" value={editForm.category || ''} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} /></div>
                                 <div className="formRow"><div className="label">Maaş</div><input className="input" value={editForm.wage || ''} onChange={(e) => setEditForm({ ...editForm, wage: e.target.value })} /></div>
-                                <div className="formRow"><div className="label">Dərəcə</div><input className="input" value={editForm.job_level || ''} onChange={(e) => setEditForm({ ...editForm, job_level: e.target.value })} /></div>
-                                <div className="formRow"><div className="label">Telefon</div><input className="input" value={editForm.phone || ''} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} /></div>
-                                <div className="formRow"><div className="label">WhatsApp</div><input className="input" value={editForm.whatsapp || ''} onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })} /></div>
-                                <div className="formRow"><div className="label">Email</div><input className="input" value={editForm.contact_email || ''} onChange={(e) => setEditForm({ ...editForm, contact_email: e.target.value })} /></div>
-                                <div className="formRow"><div className="label">İş saatı başlanğıc</div><input type="time" className="input" value={editForm.start_time || ''} onChange={(e) => setEditForm({ ...editForm, start_time: e.target.value })} /></div>
-                                <div className="formRow"><div className="label">İş saatı bitiş</div><input type="time" className="input" value={editForm.end_time || ''} onChange={(e) => setEditForm({ ...editForm, end_time: e.target.value })} /></div>
                                 <div className="formRow"><div className="label">Şirkət</div><input className="input" value={editForm.company_name || ''} onChange={(e) => setEditForm({ ...editForm, company_name: e.target.value })} /></div>
                                 <div className="formRow"><div className="label">Filial / iş yeri</div><input className="input" value={editForm.workplace || ''} onChange={(e) => setEditForm({ ...editForm, workplace: e.target.value })} /></div>
                                 <div className="formRow"><div className="label">Daxili CV bazası</div><input className="input" value={editForm.ats_link || ''} onChange={(e) => setEditForm({ ...editForm, ats_link: e.target.value })} /></div>
@@ -200,10 +188,6 @@ export default function JobDetailPage() {
                                 <td>{job.category}</td>
                             </tr>
                             <tr>
-                                <td className="muted">Dərəcə</td>
-                                <td>{job.jobLevel || job.job_level || '-'}</td>
-                            </tr>
-                            <tr>
                                 <td className="muted">Maaş</td>
                                 <td>{job.wage ? `${job.wage}` : 'Razılaşma ilə'}</td>
                             </tr>
@@ -214,18 +198,6 @@ export default function JobDetailPage() {
                             <tr>
                                 <td className="muted">Vakansiya tarixləri</td>
                                 <td>{job.vacancyStartDate || job.vacancy_start_date || '-'} — {job.vacancyEndDate || job.vacancy_end_date || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td className="muted">İş saatları</td>
-                                <td>{job.startTime || job.start_time || '-'} — {job.endTime || job.end_time || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td className="muted">Daxili CV bazası</td>
-                                <td>{job.atsLink || job.ats_link || job.link ? <a href={job.atsLink || job.ats_link || job.link} target="_blank" rel="noreferrer">Keçidə bax</a> : '-'}</td>
-                            </tr>
-                            <tr>
-                                <td className="muted">Görünən əlaqələr</td>
-                                <td>{Object.entries(job.contactVisibility || job.contact_visibility || {}).filter(([, value]) => value !== false).map(([key]) => key).join(', ') || '-'}</td>
                             </tr>
                             <tr>
                                 <td className="muted">Növ</td>
@@ -288,9 +260,8 @@ export default function JobDetailPage() {
                         <h3 style={{ fontSize: 16, marginBottom: 8 }}>Əlaqə</h3>
                         <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
                             {job.phone && <div className="pill">📞 {job.phone}</div>}
-                            {(job.contactEmail || job.contact_email || job.email) && <div className="pill">✉️ {job.contactEmail || job.contact_email || job.email}</div>}
                             {job.whatsapp && <div className="pill good">💬 {job.whatsapp}</div>}
-                            {(job.atsLink || job.ats_link || job.link) && <a href={job.atsLink || job.ats_link || job.link} target="_blank" rel="noreferrer" className="pill a1">🔗 ATS / Link</a>}
+                            {job.link && <a href={job.link} target="_blank" rel="noreferrer" className="pill a1">🔗 ATS / Link</a>}
                             {(job.primaryContact || job.primary_contact) && <div className="pill good">⭐ İlk əlaqə: {job.primaryContact || job.primary_contact}</div>}
                         </div>
                         {job.voen && <div style={{ marginTop: 8 }} className="muted">VÖEN: {job.voen}</div>}
