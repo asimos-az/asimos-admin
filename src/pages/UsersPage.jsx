@@ -250,7 +250,8 @@ export default function UsersPage() {
                   <th>Ad Soyad</th>
                   {activeTab === 'employer' && <th>Şirkət</th>}
                   <th>Reytinq</th>
-                  <th>Telefon</th>
+                  <th>Əlaqə nömrəsi</th>
+                  <th>WhatsApp</th>
                   <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
                 </tr>
               </thead>
@@ -273,6 +274,7 @@ export default function UsersPage() {
                       ) : '-'}
                     </td>
                     <td className="mono">{u.phone || '-'}</td>
+                    <td className="mono">{u.whatsapp || 'Əlavə edilməyib'}</td>
                     <td style={{ textAlign: 'right' }}>
                       <div className="row" style={{ justifyContent: 'flex-end' }}>
                         <button className="btn" onClick={() => setSelectedUser(u)}>
@@ -287,8 +289,8 @@ export default function UsersPage() {
                     </td>
                   </tr>
                 ))}
-                {(!loading && items.length === 0) ? <tr><td colSpan={activeTab === 'employer' ? "7" : "6"} className="muted" style={{ padding: 40, textAlign: 'center' }}>İstifadəçi yoxdur</td></tr> : null}
-                {loading ? <tr><td colSpan={activeTab === 'employer' ? "7" : "6"} className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
+                {(!loading && items.length === 0) ? <tr><td colSpan={activeTab === 'employer' ? "9" : "8"} className="muted" style={{ padding: 40, textAlign: 'center' }}>İstifadəçi yoxdur</td></tr> : null}
+                {loading ? <tr><td colSpan={activeTab === 'employer' ? "9" : "8"} className="muted" style={{ padding: 40, textAlign: 'center' }}>Yüklənir…</td></tr> : null}
               </tbody>
             </table>
           </div>
@@ -319,8 +321,12 @@ export default function UsersPage() {
               <div className="mono">{selectedUser.email || '-'}</div>
             </div>
             <div className="formRow">
-              <div className="label"><Phone size={12} style={{ marginRight: 4 }} /> Telefon</div>
+              <div className="label"><Phone size={12} style={{ marginRight: 4 }} /> Əlaqə nömrəsi</div>
               <div className="mono">{selectedUser.phone || '-'}</div>
+            </div>
+            <div className="formRow">
+              <div className="label">WhatsApp</div>
+              <div className="mono">{selectedUser.whatsapp || 'Əlavə edilməyib'}</div>
             </div>
             <div className="formRow">
               <div className="label"><Info size={12} style={{ marginRight: 4 }} /> Rol</div>
@@ -365,7 +371,7 @@ export default function UsersPage() {
               <div style={{ fontWeight: 600 }}>{selectedSwitchRequest.user?.full_name || '-'}</div>
             </div>
             <div className="formRow">
-              <div className="label"><Phone size={12} style={{ marginRight: 4 }} /> Telefon</div>
+              <div className="label"><Phone size={12} style={{ marginRight: 4 }} /> Əlaqə nömrəsi</div>
               <div className="mono">{selectedSwitchRequest.user?.phone || '-'}</div>
             </div>
             <div className="formRow">
