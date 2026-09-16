@@ -51,6 +51,7 @@ function textToOptions(text = '', salary = false) {
 export default function SettingsPage() {
   const [socialLinks, setSocialLinks] = useState(defaultLinks);
   const [filterText, setFilterText] = useState({ vacancyTypes: '', jobLevels: '', salaryRanges: '' });
+  const [cityText, setCityText] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
@@ -62,9 +63,10 @@ export default function SettingsPage() {
   async function fetchSettings() {
     setLoading(true);
     try {
-      const [siteRes, filterRes] = await Promise.all([
+      const [siteRes, filterRes, citiesRes] = await Promise.all([
         api.get('/admin/site-settings'),
         api.get('/admin/job-filter-options').catch(() => ({ data: defaultFilterOptions })),
+        api.get('/admin/cities'),
       ]);
       setSocialLinks({ ...defaultLinks, ...(siteRes.data?.socialLinks || {}) });
       setFilterText({
@@ -72,6 +74,7 @@ export default function SettingsPage() {
         jobLevels: optionsToText(filterRes.data?.jobLevels || []),
         salaryRanges: optionsToText(filterRes.data?.salaryRanges || [], true),
       });
+      setCityText((citiesRes.data?.items || []).join('\n'));
     } catch (e) {
       setMessage({ type: 'error', text: e?.response?.data?.error || e.message || 'Ayarlar yüklənmədi' });
     } finally {
@@ -97,10 +100,13 @@ export default function SettingsPage() {
         jobLevels: textToOptions(filterText.jobLevels),
         salaryRanges: textToOptions(filterText.salaryRanges, true),
       };
+      const cities = [...new Set(cityText.split('\n').map((item) => item.trim()).filter(Boolean))];
+      if (!cities.length) throw new Error('Ən azı bir şəhər və ya rayon saxlanmalıdır');
 
-      const [siteRes, filterRes] = await Promise.all([
+      const [siteRes, filterRes, citiesRes] = await Promise.all([
         api.put('/admin/site-settings', socialPayload),
         api.put('/admin/job-filter-options', filterPayload),
+        api.put('/admin/cities', { items: cities }),
       ]);
 
       setSocialLinks({ ...defaultLinks, ...(siteRes.data?.socialLinks || socialPayload.socialLinks) });
@@ -109,6 +115,7 @@ export default function SettingsPage() {
         jobLevels: optionsToText(filterRes.data?.jobLevels || filterPayload.jobLevels),
         salaryRanges: optionsToText(filterRes.data?.salaryRanges || filterPayload.salaryRanges, true),
       });
+      setCityText((citiesRes.data?.items || cities).join('\n'));
       setMessage({ type: 'success', text: 'Ayarlar uğurla yadda saxlanıldı!' });
       setTimeout(() => setMessage(null), 3000);
     } catch (e) {
@@ -186,6 +193,22 @@ export default function SettingsPage() {
             <button className="btn primary" onClick={saveSettings} disabled={saving || loading} style={{ padding: '14px 32px', fontSize: 16, fontWeight: 700, borderRadius: 16, boxShadow: '0 4px 12px rgba(37,99,235,0.2)' }}>
               {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
               {saving ? 'Saxlanılır...' : 'Yadda saxla'}
+            </button>
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: 0, overflow: 'hidden', border: 'none', boxShadow: 'var(--shadow2)', borderRadius: 'var(--r28)' }}>
+          <div style={{ padding: '24px 32px', borderBottom: '1px solid var(--stroke)', background: 'linear-gradient(to bottom, #fff, #fafafa)' }}>
+            <h2 style={{ margin: 0, fontSize: 22 }}>Şəhər və rayon kataloqu</h2>
+            <p style={{ margin: '6px 0 0', color: 'var(--muted)', fontSize: 14 }}>Hər sətrə bir şəhər və ya rayon yazın. Siyahı web şəhər seçicisində görünəcək.</p>
+          </div>
+          <div style={{ padding: 32 }}>
+            <textarea className="input" rows={12} value={cityText} onChange={(e) => setCityText(e.target.value)} placeholder={'Bakı\nGəncə\nSumqayıt'} style={{ width: '100%', resize: 'vertical', lineHeight: 1.8 }} />
+          </div>
+          <div style={{ padding: '20px 32px', background: '#fafafa', borderTop: '1px solid var(--stroke)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <button className="btn primary" onClick={saveSettings} disabled={saving || loading} style={{ padding: '14px 32px', fontSize: 16, fontWeight: 700, borderRadius: 16 }}>
+              {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+              {saving ? 'Saxlanılır...' : 'Şəhər siyahısını saxla'}
             </button>
           </div>
         </div>
