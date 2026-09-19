@@ -108,6 +108,7 @@ export default function Layout({ title, children, subtitle }) {
           <NavItem to="/jobs" icon={Briefcase} label="Elanlar" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/categories" icon={Tags} label="Kateqoriyalar" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/content" icon={FileText} label="Qaydalar" onClick={mobile ? closeDrawer : undefined} />
+          <NavItem to="/career-articles" icon={FileText} label="Karyera məsləhətləri" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/support" icon={MessageSquare} label="Dəstək" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/change-requests" icon={FileText} label="Dəyişiklik sorğuları" onClick={mobile ? closeDrawer : undefined} />
           <NavItem to="/map" icon={Map} label="Xəritə" onClick={mobile ? closeDrawer : undefined} />

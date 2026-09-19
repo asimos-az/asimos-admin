@@ -17,6 +17,7 @@ import NotificationsPage from './pages/NotificationsPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
 import SponsoredCardPage from './pages/SponsoredCardPage.jsx'
 import HomeWidgetsPage from './pages/HomeWidgetsPage.jsx'
+import CareerArticlesPage from './pages/CareerArticlesPage.jsx'
 
 export default function App() {
   return (
@@ -146,6 +147,7 @@ export default function App() {
           }
         />
 
+        <Route path="/career-articles" element={<RequireAuth><CareerArticlesPage /></RequireAuth>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

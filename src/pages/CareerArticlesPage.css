@@ -1,0 +1,272 @@
+.career-admin {
+  max-width:1450px;
+  margin:0 auto}
+.career-admin-toolbar {
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-bottom:24px;
+  flex-wrap:wrap}
+.career-admin-search {
+  display:flex;
+  gap:8px;
+  flex:1;
+  min-width:220px}
+.career-admin-toolbar>select {
+  max-width:210px}
+.career-admin-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:22px}
+.career-admin-list-card {
+  border:1px solid var(--stroke,#e2e8e5);
+  background:#fff;
+  border-radius:17px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column}
+.career-cover-preview {
+  height:155px;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:25px;
+  color:#385942;
+  background:#e5eee1}
+.career-cover-preview.peach {
+  background-color:#f5e7d7;
+  color:#936847}
+.career-cover-preview.blue {
+  background-color:#e4ecf6;
+  color:#456280}
+.career-cover-preview.lilac {
+  background-color:#eee4f2;
+  color:#775287}
+.career-cover-preview>span {
+  font-family:Georgia,serif;
+  font-size:27px;
+  max-width:60%;
+  overflow-wrap:anywhere}
+.career-cover-preview>b {
+  font:70px Georgia,serif;
+  letter-spacing:-6px;
+  transform:rotate(-10deg);
+  opacity:.6}
+.career-list-content {
+  padding:22px;
+  display:flex;
+  flex:1;
+  flex-direction:column}
+.career-list-meta {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font-size:11px;
+  color:#5f7b4e}
+.career-status {
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:700;
+  color:#7c6850;
+  background:#f5ede2}
+.career-status.published {
+  color:#267353;
+  background:#e6f3e9}
+.career-list-content h2 {
+  font-size:21px;
+  line-height:1.4;
+  letter-spacing:-.5px;
+  overflow-wrap:anywhere}
+.career-list-content p {
+  font-size:13px;
+  color:#7b857c;
+  line-height:1.7;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden}
+.career-list-footer {
+  margin-top:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-top:20px;
+  gap:8px;
+  font-size:12px;
+  color:#788276}
+.career-admin-empty {
+  min-height:300px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  border:1px dashed #d1ded0;
+  border-radius:15px;
+  padding:30px;
+  text-align:center;
+  gap:10px;
+  color:#65745f}
+.career-admin-empty h2,.career-admin-empty p {
+  margin:3px}
+.career-admin-error {
+  padding:18px 22px;
+  background:#fff0ee;
+  border:1px solid #ecc8c2;
+  color:#973b31;
+  border-radius:12px;
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px}
+.career-editor-top {
+  display:flex;
+  gap:14px;
+  align-items:center;
+  margin-bottom:24px}
+.career-editor-top>.primary {
+  margin-left:auto}
+.career-editor-fields {
+  border:0;
+  padding:0;
+  margin:0;
+  min-width:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 310px;
+  gap:24px}
+.career-editor-fields:disabled {
+  opacity:.7}
+.career-admin-card {
+  padding:25px;
+  background:#fff;
+  border:1px solid var(--stroke,#e1e9de);
+  border-radius:16px;
+  margin-bottom:22px;
+  min-width:0}
+.career-admin-card h2 {
+  font-size:17px;
+  margin:0 0 22px}
+.career-admin-card label {
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  font-size:12px;
+  font-weight:650;
+  margin:0 0 22px}
+.career-admin-card .input {
+  width:100%;
+  min-width:0;
+  font:inherit;
+  font-size:14px;
+  color:#253c2b}
+.career-admin-card small {
+  display:block;
+  color:#7d8979;
+  font-size:11px;
+  font-weight:400;
+  line-height:1.7}
+.career-title-input {
+  font-size:24px!important;
+  letter-spacing:-.6px}
+.career-body-heading {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin:24px 0 14px;
+  font-size:13px}
+.career-body-toolbar {
+  display:flex;
+  border:1px solid #dce5d7;
+  border-bottom:0;
+  padding:9px;
+  gap:7px;
+  flex-wrap:wrap;
+  background:#f6f8f3;
+  border-radius:9px 9px 0 0}
+.career-body-toolbar button {
+  border:1px solid #dce5d7;
+  background:white;
+  color:#45603c;
+  border-radius:5px;
+  font:inherit;
+  font-size:11px;
+  padding:7px 10px;
+  cursor:pointer}
+.career-admin textarea.career-body-input {
+  min-height:530px!important;
+  resize:vertical;
+  border-radius:0 0 9px 9px!important;
+  line-height:1.8!important;
+  margin-bottom:10px}
+.career-checkbox {
+  flex-direction:row!important;
+  align-items:center}
+.career-checkbox input {
+  width:17px;
+  height:17px;
+  accent-color:#287851}
+.career-body-preview {
+  padding:24px;
+  background:#fafbf7;
+  border:1px solid #e0e8db;
+  border-radius:10px;
+  min-height:450px;
+  line-height:1.9;
+  overflow-wrap:anywhere;
+  color:#42563d}
+.career-body-preview p {
+  white-space:pre-line}
+.career-body-preview h2 {
+  margin:25px 0 15px;
+  font-size:25px}
+.career-body-preview blockquote {
+  border-left:3px solid #a1bb8b;
+  margin:20px 0;
+  padding:15px 20px;
+  background:#eef3e7}
+.career-admin-pagination {
+  display:flex;
+  gap:24px;
+  align-items:center;
+  justify-content:center;
+  margin-top:25px}
+.career-admin button:disabled {
+  opacity:.5;
+  cursor:default}
+.career-admin .btn {
+  white-space:nowrap}
+@media(max-width:1150px) {
+  .career-admin-grid {
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+.career-editor-fields {
+  grid-template-columns:minmax(0,1fr) 270px;
+  gap:16px}
+.career-admin-card {
+  padding:19px}
+}
+@media(max-width:800px) {
+  .career-editor-fields {
+  grid-template-columns:1fr}
+.career-editor-side {
+  display:flex;
+  flex-direction:column}
+.career-admin-grid {
+  grid-template-columns:1fr}
+.career-editor-top {
+  flex-wrap:wrap}
+.career-admin-toolbar>select {
+  max-width:100%}
+.career-admin-toolbar>.primary {
+  width:100%;
+  justify-content:center}
+.career-admin-error {
+  flex-direction:column;
+  align-items:flex-start}
+}
